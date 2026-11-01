@@ -1,0 +1,43 @@
+name: Android 앱 만들기 (Play Store)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/android.yml', 'hangulk-upload.p12']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: 비밀번호 확인
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_PASSWORD" ]; then echo "::error::KEYSTORE_PASSWORD 비밀값이 없어요. Settings > Secrets and variables > Actions 에서 추가하세요."; exit 1; fi
+      - name: AAB / APK 만들기
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          VERSION_CODE: ${{ github.run_number }}
+        run: gradle :app:bundleRelease :app:assembleRelease --no-daemon --stacktrace
+      - name: 파일 이름 정리
+        run: |
+          mkdir out
+          cp android/app/build/outputs/bundle/release/app-release.aab out/HangulK-${{ github.run_number }}.aab
+          cp android/app/build/outputs/apk/release/app-release.apk out/HangulK-${{ github.run_number }}.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Hangul K 1.0.${{ github.run_number }}
+          body: "AAB = Play Console에 올리는 파일 / APK = 휴대폰에 바로 설치해서 테스트하는 파일"
+          files: out/*
