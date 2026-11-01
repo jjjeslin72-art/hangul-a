@@ -81,6 +81,14 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .gchart td button{border:0;background:none;width:56px;padding:6px 2px;text-align:center}
 .gchart td b{display:block;font-family:var(--f-glyph);font-size:20px;font-weight:500;line-height:1.2}
 .gchart td i{font-style:normal;font-size:12px;color:var(--seal);font-weight:700}
+.levels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:16px}
+.lv{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:6px 2px;text-align:center;min-width:0}
+.lv b{display:block;font-family:var(--f-disp);font-size:20px;line-height:1.1}
+.lv small{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+.lv i{display:block;font-style:normal;font-size:11px;color:var(--seal);letter-spacing:1px;min-height:15px}
+.lv[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
+.lv[aria-pressed="true"] b,.lv[aria-pressed="true"] small,.lv[aria-pressed="true"] i{color:var(--sheet)}
+.g-items button.done b::after{content:" ✓";color:var(--good)}
 /* builder */
 .formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
 .formula .op{color:var(--muted);font-size:20px}
@@ -237,6 +245,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 <section class="panel" id="p-quiz" hidden>
   <h2 data-t="quizTitle"></h2>
   <p class="lead" data-t="quizLead"></p>
+  <div class="levels" id="qLevels"></div>
   <div id="qPlay">
     <div class="q-top"><span id="qNum"></span><span id="qScore"></span></div>
     <div class="bar"><i id="qBar" style="width:0"></i></div>
@@ -247,7 +256,10 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
     <div class="big-num" id="qFinal"></div>
     <p id="qFinalMsg"></p>
     <p class="msg" id="qBest"></p>
-    <button class="btn primary big" id="qAgain" data-t="again"></button>
+    <div class="row" style="justify-content:center">
+      <button class="btn big" id="qAgain" data-t="again"></button>
+      <button class="btn primary big" id="qNextLv" data-t="nextLv"></button>
+    </div>
   </div>
 </section>
 
@@ -255,6 +267,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 <section class="panel" id="p-say" hidden>
   <h2 data-t="sayTitle"></h2>
   <p class="lead" data-t="sayLead"></p>
+  <div class="levels" id="sLevels"></div>
   <div class="q-card">
     <div class="say-target" id="sTarget"></div>
     <div class="say-pron" id="sPron"></div>
@@ -295,6 +308,8 @@ const T={
  slow:{ko:'천천히',pt:'Devagar'},
  tSound:{ko:'소리',pt:'Sons'},tBuild:{ko:'조합',pt:'Montar'},tWrite:{ko:'쓰기',pt:'Escrever'},tQuiz:{ko:'퀴즈',pt:'Quiz'},tSay:{ko:'말하기',pt:'Falar'},
  chart:{ko:'가나다라 표 (누르면 소리 나요)',pt:'Tabela Ga-Na-Da-Ra (toque para ouvir)'},
+ lvNames:{ko:['한 글자','음식','동물·자연','인사','대답','마음','부탁하기','가게·식당','자기소개','생활 문장'],pt:['Palavras curtas','Comida','Animais','Saudações','Respostas','Sentimentos','Pedidos','Loja','Apresentação','Dia a dia']},
+ nextLv:{ko:'다음 단계 ▶',pt:'Próximo nível ▶'},lvWord:{ko:'단',pt:'Nível'},
  soundTitle:{ko:'자음과 모음 소리',pt:'Sons das consoantes e vogais'},
  soundLead:{ko:'글자를 누르면 소리가 나와요. 자음은 ㅏ를 붙여서 들려줘요.',pt:'Toque numa letra para ouvir. As consoantes são lidas com ㅏ (a).'},
  consonants:{ko:'자음',pt:'Consoantes'},dbl:{ko:'된소리 (쌍자음)',pt:'Consoantes duplas (tensas)'},
@@ -310,12 +325,12 @@ const T={
  clear:{ko:'지우기',pt:'Apagar'},check:{ko:'확인',pt:'Verificar'},showGuide:{ko:'흐린 글자 보이기',pt:'Mostrar a letra guia'},
  w0:{ko:'먼저 써 보세요',pt:'Escreva primeiro'},w1:{ko:'조금 더 글자 모양에 맞춰 보세요',pt:'Tente seguir mais a forma'},w2:{ko:'좋아요! 거의 다 왔어요',pt:'Bom! Quase lá'},w3:{ko:'완벽해요!',pt:'Perfeito!'},
  quizTitle:{ko:'단어 퀴즈',pt:'Quiz de palavras'},
- quizLead:{ko:'그림을 보거나 소리를 듣고 맞는 한글을 고르세요. 10문제.',pt:'Veja a figura ou ouça e escolha a palavra certa. 10 perguntas.'},
+ quizLead:{ko:'1단부터 10단까지! 단계를 골라 그림·소리·뜻을 보고 맞는 한국말을 고르세요.',pt:'Do nível 1 ao 10! Escolha um nível e acerte a palavra pela figura, som ou significado.'},
  qListen:{ko:'소리를 듣고 고르세요',pt:'Ouça e escolha'},qPic:{ko:'그림에 맞는 단어는?',pt:'Qual é a palavra?'},
  again:{ko:'다시 하기',pt:'Jogar de novo'},best:{ko:'최고 기록',pt:'Recorde'},
  end3:{ko:'대단해요! 한글 박사!',pt:'Incrível! Você é fera!'},end2:{ko:'잘했어요! 조금만 더!',pt:'Muito bem! Falta pouco!'},end1:{ko:'괜찮아요, 다시 해봐요!',pt:'Tudo bem, tente de novo!'},
  sayTitle:{ko:'말하고 발음 교정',pt:'Fale e corrija a pronúncia'},
- sayLead:{ko:'먼저 듣고, 마이크를 눌러 따라 말하세요. 틀린 글자는 빨간색으로 보여주고 고치는 법을 알려줘요.',pt:'Ouça, toque no microfone e repita. As sílabas erradas ficam em vermelho, com dicas.'},
+ sayLead:{ko:'단계를 고르고, 먼저 듣고, 마이크를 눌러 따라 말하세요. 90% 넘으면 ✓ 표시가 붙어요.',pt:'Escolha um nível, ouça, toque no microfone e repita. As sílabas erradas ficam em vermelho, com dicas.'},
  speak:{ko:'말하기',pt:'Falar'},stop:{ko:'듣는 중…',pt:'Ouvindo…'},next:{ko:'다음 ▶',pt:'Próxima ▶'},phrases:{ko:'연습할 말 고르기',pt:'Escolha o que praticar'},
  heard:{ko:'들린 말',pt:'Ouvi'},perfect:{ko:'완벽한 발음이에요!',pt:'Pronúncia perfeita!'},good:{ko:'좋아요! 빨간 글자만 다시 연습해요.',pt:'Bom! Pratique só as sílabas vermelhas.'},
  retry:{ko:'다시 해봐요. 빨간 글자를 눌러 소리를 들어보세요.',pt:'Tente de novo. Toque nas sílabas vermelhas para ouvir.'},
@@ -330,7 +345,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});
   $('langBtn').textContent=lang==='ko'?'PT':'한국어';
   $('langBtn').setAttribute('aria-label',lang==='ko'?'Português':'한국어');
-  renderDetail();renderChal();renderSay(false);if(qState)renderQ();
+  renderDetail();renderChal();renderSay(false);renderQLevels();if(qState&&qState.i<qState.qs.length&&!$('qPlay').hidden)renderQ();else if(qState)endQuiz();
 }
 
 /* ---------- 소리 (TTS) ---------- */
@@ -456,6 +471,44 @@ const GROUPS=[
  {ko:'단어',pt:'Palavras',items:WORDS.map(w=>[w[0],w[1]+' '+w[2],w[3]])}
 ];
 const PHRASES=GROUPS.flatMap(g=>g.items);
+// 1단~10단: [한국어, 포르투갈어 뜻, 로마자, 브라질식 발음, 그림]
+const L=(ko,pt,rom,pr,em)=>[ko,pt,rom,pr,em||''];
+const LEVELS=[
+ [L('물','água','mul','mul','💧'),L('비','chuva','bi','bi','🌧️'),L('눈','olho','nun','nun','👁️'),L('손','mão','son','sôn','✋'),
+  L('집','casa','jip','djip','🏠'),L('차','carro','cha','tcha','🚗'),L('옷','roupa','ot','ôt','👕'),L('꽃','flor','kkot','kkôt','🌸')],
+ [L('사과','maçã','sagwa','sa-guá','🍎'),L('바나나','banana','banana','ba-na-na','🍌'),L('우유','leite','uyu','u-iu','🥛'),L('빵','pão','ppang','ppang','🍞'),
+  L('커피','café','keopi','kó-pi','☕'),L('포도','uva','podo','pô-dô','🍇'),L('딸기','morango','ttalgi','ttal-gui','🍓'),L('김치','kimchi','gimchi','gim-tchi','🥬')],
+ [L('강아지','cachorro','gangaji','gang-a-dji','🐶'),L('고양이','gato','goyangi','gô-iang-i','🐱'),L('나무','árvore','namu','na-mu','🌳'),L('하늘','céu','haneul','ra-nul','🌤️'),
+  L('바다','mar','bada','ba-da','🌊'),L('별','estrela','byeol','biól','⭐'),L('토끼','coelho','tokki','tô-kki','🐰'),L('새','pássaro','sae','sé','🐦')],
+ [L('안녕하세요','Olá / Bom dia','annyeonghaseyo','an-nhiông-ra-sê-iô','👋'),L('안녕','Oi (com amigos)','annyeong','an-nhiông'),
+  L('감사합니다','Obrigado(a)','gamsahamnida','gam-sa-ram-ni-da','🙏'),L('고마워요','Obrigado(a) (informal)','gomawoyo','gô-ma-uó-iô'),
+  L('안녕히 가세요','Tchau (para quem vai)','annyeonghi gaseyo','an-nhiông-ri ga-sê-iô'),L('안녕히 계세요','Tchau (para quem fica)','annyeonghi gyeseyo','an-nhiông-ri guê-sê-iô'),
+  L('또 만나요','Até logo','tto mannayo','ttô man-na-iô'),L('잘 자요','Boa noite (durma bem)','jal jayo','djal dja-iô','😴')],
+ [L('네','Sim','ne','nê','⭕'),L('아니요','Não','aniyo','a-ni-iô','❌'),L('괜찮아요','Tudo bem','gwaenchanayo','guén-tcha-na-iô','👌'),
+  L('미안해요','Desculpa','mianhaeyo','mi-a-né-iô'),L('죄송합니다','Peço desculpas (formal)','joesonghamnida','djuê-sông-ram-ni-da','🙇'),
+  L('알겠어요','Entendi','algesseoyo','al-gué-ssó-iô'),L('몰라요','Não sei','mollayo','môl-la-iô','🤷'),L('좋아요','Gosto / Está bom','joayo','djô-a-iô','👍')],
+ [L('사랑해요','Eu te amo','saranghaeyo','sa-rang-ré-iô','❤️'),L('보고 싶어요','Estou com saudade','bogo sipeoyo','bô-gô si-pó-iô'),
+  L('행복해요','Estou feliz','haengbokhaeyo','réng-bô-kê-iô','😊'),L('예뻐요','É bonito(a)','yeppeoyo','iê-ppó-iô'),
+  L('귀여워요','É fofo(a)','gwiyeowoyo','gui-iô-uó-iô','🥰'),L('배고파요','Estou com fome','baegopayo','bé-gô-pa-iô','🍽️'),
+  L('피곤해요','Estou cansado(a)','pigonhaeyo','pi-gôn-ré-iô','🥱'),L('화이팅','Força! / Vamos lá!','hwaiting','ruá-i-ting','💪')],
+ [L('주세요','Me dá, por favor','juseyo','dju-sê-iô'),L('물 주세요','Água, por favor','mul juseyo','mul dju-sê-iô'),
+  L('커피 주세요','Um café, por favor','keopi juseyo','kó-pi dju-sê-iô'),L('이거 주세요','Quero este, por favor','igeo juseyo','i-gó dju-sê-iô'),
+  L('강아지 주세요','O cachorrinho, por favor','gangaji juseyo','gang-a-dji dju-sê-iô'),L('도와주세요','Me ajude, por favor','dowajuseyo','dô-ua-dju-sê-iô'),
+  L('잠깐만요','Um momento','jamkkanmanyo','djam-kkan-man-nhiô'),L('천천히 말해 주세요','Fale devagar, por favor','cheoncheonhi malhae juseyo','tchón-tchó-ni ma-ré dju-sê-iô')],
+ [L('얼마예요','Quanto custa?','eolmayeyo','ól-ma-iê-iô'),L('깎아 주세요','Faz um desconto?','kkakka juseyo','kka-kka dju-sê-iô'),
+  L('너무 비싸요','Está muito caro','neomu bissayo','nó-mu bi-ssa-iô'),L('이거 뭐예요','O que é isto?','igeo mwoyeyo','i-gó muó-iê-iô'),
+  L('맛있어요','Está gostoso','masisseoyo','ma-si-ssó-iô'),L('포장해 주세요','Para viagem, por favor','pojanghae juseyo','pô-djang-ré dju-sê-iô'),
+  L('계산해 주세요','A conta, por favor','gyesanhae juseyo','guê-sa-né dju-sê-iô'),L('화장실 어디예요','Onde fica o banheiro?','hwajangsil eodiyeyo','ruá-djang-sil ó-di-iê-iô')],
+ [L('만나서 반가워요','Prazer em conhecer','mannaseo bangawoyo','man-na-só ban-ga-uó-iô'),L('저는 브라질 사람이에요','Sou brasileiro(a)','jeoneun beurajil saramieyo','djó-nun bu-ra-djil sa-ra-mi-ê-iô'),
+  L('저는 한국 사람이에요','Sou coreano(a)','jeoneun hanguk saramieyo','djó-nun ran-guk sa-ra-mi-ê-iô'),L('상파울루에 살아요','Moro em São Paulo','sangpaullue sarayo','sang-pa-ul-lu-ê sa-ra-iô'),
+  L('한국어를 배워요','Estou aprendendo coreano','hangugeoreul baewoyo','ran-gu-gó-rul bé-uó-iô'),L('한국어 조금 해요','Falo um pouco de coreano','hangugeo jogeum haeyo','ran-gu-gó djô-gum ré-iô'),
+  L('한국 드라마 좋아해요','Gosto de dorama coreano','hanguk deurama joahaeyo','ran-guk du-ra-ma djô-a-ré-iô'),L('다시 한번 말해 주세요','Repita, por favor','dasi hanbeon malhae juseyo','da-si ran-bón ma-ré dju-sê-iô')],
+ [L('오늘 날씨가 좋아요','O tempo está bom hoje','oneul nalssiga joayo','ô-nul nal-ssi-ga djô-a-iô'),L('지금 몇 시예요','Que horas são?','jigeum myeot siyeyo','dji-gum miót-ssi-iê-iô'),
+  L('어디 가요','Aonde você vai?','eodi gayo','ó-di ga-iô'),L('집에 가요','Vou para casa','jibe gayo','dji-bê ga-iô'),
+  L('같이 밥 먹어요','Vamos comer juntos','gachi bap meogeoyo','ga-tchi bap mó-gó-iô'),L('생일 축하해요','Feliz aniversário','saengil chukahaeyo','séng-il tchu-ka-ré-iô'),
+  L('정말 감사합니다','Muito obrigado(a)','jeongmal gamsahamnida','djóng-mal gam-sa-ram-ni-da'),L('한국에 가고 싶어요','Quero ir para a Coreia','hanguge gago sipeoyo','ran-gu-gê ga-gô si-pó-iô')]
+];
+
 // 브라질 사람이 읽기 쉬운 포르투갈어식 발음 (ㅎ=r de "rato", ㅓ=ó, ㅗ=ô, ㅈ=dj, ㅊ=tch)
 const PRON={
  '안녕하세요':'an-nhiông-ra-sê-iô','안녕':'an-nhiông','좋은 아침이에요':'djô-un a-tchi-mi-ê-iô','만나서 반가워요':'man-na-só ban-ga-uó-iô',
@@ -471,6 +524,7 @@ const PRON={
  '사과':'sa-guá','바나나':'ba-na-na','우유':'u-iu','물':'mul','고양이':'gô-iang-i','강아지':'gang-a-dji','나무':'na-mu',
  '집':'djip','꽃':'kkôt','차':'tcha','책':'tchék','커피':'kó-pi','모자':'mô-dja','비':'bi','별':'biól','눈':'nun',
  '손':'sôn','옷':'ôt','빵':'ppang','포도':'pô-dô','하늘':'ra-nul','바다':'ba-da','딸기':'ttal-gui','신발':'sin-bal'};
+LEVELS.flat().forEach(x=>{PRON[x[0]]=x[3]});
 
 /* ---------- 탭 ---------- */
 let tab='sound';
@@ -613,33 +667,42 @@ $('wGuide').onchange=paintGuide;
 window.addEventListener('resize',()=>{if(tab==='write')sizePad()});
 if(document.fonts&&document.fonts.load)document.fonts.load(`500 100px "Noto Sans KR"`,'가ㄱ').then(()=>{if(tab==='write')paintGuide()}).catch(()=>{});
 
-/* ---------- 4. 퀴즈 ---------- */
-let qState=null;
+/* ---------- 4. 퀴즈 (1~10단) ---------- */
+let qState=null,qLevel=store.get('hg-qlv',0);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-function startQuiz(){
-  const wq=shuffle(WORDS).slice(0,6).map((w,i)=>({w,type:i%3===2?'listen':'pic',
-    opts:shuffle([w,...shuffle(WORDS.filter(x=>x!==w)).slice(0,3)])}));
-  const PH=GROUPS.slice(0,5).flatMap(g=>g.items);
-  const pq=shuffle(PH).slice(0,4).map(p=>({w:p,type:'mean',
-    opts:shuffle([p,...shuffle(PH.filter(x=>x!==p&&x[1]!==p[1])).slice(0,3)])}));
-  const qs=shuffle([...wq,...pq]);
-  qState={qs,i:0,score:0,answered:false};$('qEnd').hidden=true;$('qPlay').hidden=false;renderQ();
+const starsOf=(sc,n)=>{const r=sc/n;return r>=0.9?3:r>=0.7?2:r>=0.4?1:0};
+function lvName(i){return T.lvNames[lang][i]}
+function renderQLevels(){
+  const best=store.get('hg-qbest',{});
+  $('qLevels').innerHTML=LEVELS.map((_,i)=>{const st=best[i]!=null?starsOf(best[i],LEVELS[i].length):-1;
+    return`<button class="lv" data-lv="${i}" aria-pressed="${i===qLevel}"><b>${i+1}</b><small>${lvName(i)}</small><i>${st<0?'':'★'.repeat(st)+'☆'.repeat(3-st)}</i></button>`}).join('');
+  $('qLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>startQuiz(+b.dataset.lv));
+}
+function startQuiz(lv){
+  if(lv!=null){qLevel=lv;store.set('hg-qlv',lv)}
+  const items=LEVELS[qLevel];
+  const qs=shuffle(items).map((w,i)=>{const types=w[4]?['pic','listen','mean']:['listen','mean'];
+    return{w,type:types[i%types.length],opts:shuffle([w,...shuffle(items.filter(x=>x!==w)).slice(0,3)])}});
+  qState={qs,i:0,score:0,answered:false};$('qEnd').hidden=true;$('qPlay').hidden=false;renderQLevels();renderQ();
 }
 function renderQ(){
   const s=qState,q=s.qs[s.i];
-  $('qNum').textContent=`${s.i+1} / ${s.qs.length}`;$('qScore').textContent=`★ ${s.score}`;
+  $('qNum').textContent=`${qLevel+1}${lang==='ko'?'단':''} · ${s.i+1} / ${s.qs.length}`;$('qScore').textContent=`★ ${s.score}`;
   $('qBar').style.width=(s.i/s.qs.length*100)+'%';
   if(q.type==='mean'){
     $('qCard').innerHTML=`<div style="font-family:var(--f-disp);font-size:26px;line-height:1.3">“${q.w[1]}”</div><div class="msg" style="margin-top:6px">${lang==='ko'?'이 뜻의 한국말은?':'Como se diz em coreano?'}</div>`;
   }else if(q.type==='pic'){
-    $('qCard').innerHTML=`<div class="q-pic" aria-hidden="true">${q.w[1]}</div><div class="q-mean">${q.w[2]}</div><div class="msg">${t('qPic')}</div>`;
+    $('qCard').innerHTML=`<div class="q-pic" aria-hidden="true">${q.w[4]}</div><div class="msg">${t('qPic')}</div>`;
   }else{
     $('qCard').innerHTML=`<button class="btn primary big" id="qHear">🔊</button><div class="msg" style="margin-top:8px">${t('qListen')}</div>`;
     $('qHear').onclick=()=>speak(q.w[0]);
     if(!s.answered)setTimeout(()=>speak(q.w[0]),250);
   }
   $('qOpts').innerHTML='';
-  q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.dataset.k=o[0];b.innerHTML=o[0]+(PRON[o[0]]?`<small>${PRON[o[0]]}</small>`:'');b.style.wordBreak='keep-all';if(o[0].length>5)b.style.fontSize='18px';b.onclick=()=>answer(o,b);$('qOpts').appendChild(b)});
+  q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.dataset.k=o[0];
+    b.innerHTML=o[0]+`<small>${o[3]}</small>`;b.style.wordBreak='keep-all';
+    if(o[0].length>8)b.style.fontSize='16px';else if(o[0].length>5)b.style.fontSize='18px';
+    b.onclick=()=>answer(o,b);$('qOpts').appendChild(b)});
 }
 function answer(o,btn){
   const s=qState,q=s.qs[s.i];if(s.answered)return;s.answered=true;
@@ -650,38 +713,46 @@ function answer(o,btn){
   setTimeout(()=>{s.i++;s.answered=false;if(s.i>=s.qs.length)endQuiz();else renderQ()},1300);
 }
 function endQuiz(){
-  const s=qState,best=Math.max(store.get('hg-best',0),s.score);store.set('hg-best',best);
+  const s=qState,best=store.get('hg-qbest',{});best[qLevel]=Math.max(best[qLevel]||0,s.score);store.set('hg-qbest',best);
   $('qPlay').hidden=true;$('qEnd').hidden=false;$('qBar').style.width='100%';
+  const st=starsOf(s.score,s.qs.length);
   $('qFinal').textContent=`${s.score} / ${s.qs.length}`;
-  $('qFinalMsg').textContent=t(s.score>=9?'end3':s.score>=6?'end2':'end1');
-  $('qBest').textContent=`${t('best')}: ${best}`;
+  $('qFinalMsg').textContent='★'.repeat(st)+'☆'.repeat(3-st)+'  '+t(st===3?'end3':st===2?'end2':'end1');
+  $('qBest').textContent=`${qLevel+1}${lang==='ko'?'단':''} ${t('best')}: ${best[qLevel]} / ${s.qs.length}`;
+  $('qNextLv').hidden=qLevel>=LEVELS.length-1;
+  renderQLevels();
 }
-$('qAgain').onclick=startQuiz;
+$('qAgain').onclick=()=>startQuiz();
+$('qNextLv').onclick=()=>startQuiz(Math.min(qLevel+1,LEVELS.length-1));
 
 /* ---------- 5. 말하기 + 발음 교정 ---------- */
-let sIdx=0,rec=null,listening=false;
+let sLv=store.get('hg-slv',0),sIdx=0,rec=null,listening=false;
+const said=new Set(store.get('hg-said',[]));
+const SAYI=()=>LEVELS[sLv];
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function renderSay(resetFb=true){
-  const p=PHRASES[sIdx];
+  const p=SAYI()[sIdx];
   $('sTarget').innerHTML=[...p[0]].map(ch=>ch===' '?' ':`<span data-ch="${ch}">${ch}</span>`).join('');
   bindSyl();
-  $('sRom').textContent=p[2];$('sPron').textContent=PRON[p[0]]?'🇧🇷 '+PRON[p[0]]:'';$('sMean').textContent=p[1];
+  $('sRom').textContent=p[2];$('sPron').textContent=PRON[p[0]]?'🇧🇷 '+PRON[p[0]]:'';$('sMean').textContent=(p[4]?p[4]+' ':'')+p[1];
   if(resetFb){$('sFb').hidden=true;$('sStatus').textContent=''}
-  $('sList').innerHTML='';
-  let i=0;
-  GROUPS.forEach(g=>{
-    const h=document.createElement('div');h.className='g-head';h.textContent=lang==='ko'?g.ko+' · '+g.pt:g.pt+' · '+g.ko;$('sList').appendChild(h);
-    const box=document.createElement('div');box.className='g-items';
-    g.items.forEach(x=>{const idx=i++;const b=document.createElement('button');
-      b.innerHTML=`<b>${x[0]}</b><small class="pron">${PRON[x[0]]||x[2]}</small><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
-      b.onclick=()=>{sIdx=idx;renderSay();speak(x[0]);window.scrollTo({top:0,behavior:'smooth'})};box.appendChild(b)});
-    $('sList').appendChild(box);
-  });
+  renderSayList();
   $('sMic').textContent=listening?t('stop'):t('speak');
 }
+function renderSayList(){
+  $('sLevels').innerHTML=LEVELS.map((L,i)=>{const n=L.filter(x=>said.has(x[0])).length;
+    return`<button class="lv" data-lv="${i}" aria-pressed="${i===sLv}"><b>${i+1}</b><small>${lvName(i)}</small><i>${n?n+'/'+L.length:''}</i></button>`}).join('');
+  $('sLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{sLv=+b.dataset.lv;sIdx=0;store.set('hg-slv',sLv);renderSay();speak(SAYI()[0][0])});
+  $('sList').innerHTML=`<div class="g-head">${sLv+1}${lang==='ko'?'단':''} · ${lvName(sLv)}</div>`;
+  const box=document.createElement('div');box.className='g-items';
+  SAYI().forEach((x,idx)=>{const b=document.createElement('button');if(said.has(x[0]))b.classList.add('done');
+    b.innerHTML=`<b>${x[0]}</b><small class="pron">${x[3]}</small><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
+    b.onclick=()=>{sIdx=idx;renderSay();speak(x[0]);window.scrollTo({top:0,behavior:'smooth'})};box.appendChild(b)});
+  $('sList').appendChild(box);
+}
 function bindSyl(){$('sTarget').querySelectorAll('span').forEach(sp=>sp.onclick=()=>speak(sp.dataset.ch,0.5))}
-$('sPlay').onclick=()=>speak(PHRASES[sIdx][0]);
-$('sNext').onclick=()=>{sIdx=(sIdx+1)%PHRASES.length;renderSay();speak(PHRASES[sIdx][0])};
+$('sPlay').onclick=()=>speak(SAYI()[sIdx][0]);
+$('sNext').onclick=()=>{sIdx++;if(sIdx>=SAYI().length){sIdx=0;sLv=(sLv+1)%LEVELS.length;store.set('hg-slv',sLv)}renderSay();speak(SAYI()[sIdx][0])};
 const clean=s=>[...s].filter(ch=>/[가-힣]/.test(ch));
 function align(target,heard){ // LCS: target 각 글자가 맞았는지
   const a=clean(target),b=heard,n=a.length,m=b.length,D=[...Array(n+1)].map(()=>Array(m+1).fill(0));
@@ -691,7 +762,7 @@ function align(target,heard){ // LCS: target 각 글자가 맞았는지
   return{ok,score:n?D[0][0]/n:0};
 }
 function evaluate(alts){
-  const target=PHRASES[sIdx][0];let best=null;
+  const target=SAYI()[sIdx][0];let best=null;
   alts.forEach(txt=>{const r=align(target,clean(txt));if(!best||r.score>best.score)best={...r,txt}});
   const syl=clean(target);let k=0;
   $('sTarget').innerHTML=[...target].map(ch=>{if(ch===' ')return' ';const cls=best.ok[k++]?'ok':'miss';return`<span class="${cls}" data-ch="${ch}">${ch}</span>`}).join('');
@@ -706,6 +777,7 @@ function evaluate(alts){
     <div class="msg" style="text-align:left;margin-top:4px">${t('heard')}: “${best.txt||'…'}”</div>
     ${tips?`<div class="label" style="margin-top:10px">${t('tipFor')}</div><ul class="tips">${tips}</ul>`:''}`;
   $('sFb').hidden=false;
+  if(pct>=90&&!said.has(target)){said.add(target);store.set('hg-said',[...said]);renderSayList()}
 }
 function stopListen(){listening=false;$('sMic').classList.remove('on');$('sMic').textContent=t('speak')}
 $('sMic').onclick=()=>{
