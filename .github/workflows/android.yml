@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths: ['android/**', '.github/workflows/android.yml']
 permissions:
   contents: write
 jobs:
@@ -10,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: jjjeslin72-art/hangul-a
-          path: src
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -21,7 +19,7 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: AAB / APK 만들기
-        working-directory: src/android
+        working-directory: android
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           VERSION_CODE: ${{ github.run_number }}
@@ -34,8 +32,8 @@ jobs:
       - name: 파일 이름 정리
         run: |
           mkdir out
-          cp src/android/app/build/outputs/bundle/release/app-release.aab out/HangulK-${{ github.run_number }}.aab
-          cp src/android/app/build/outputs/apk/release/app-release.apk out/HangulK-${{ github.run_number }}.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab out/HangulK-${{ github.run_number }}.aab
+          cp android/app/build/outputs/apk/release/app-release.apk out/HangulK-${{ github.run_number }}.apk
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
