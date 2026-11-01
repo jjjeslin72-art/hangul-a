@@ -115,7 +115,9 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .say-target span{border-radius:6px;padding:0 2px;cursor:pointer}
 .say-target .ok{color:var(--good);background:var(--good-soft)}
 .say-target .miss{color:var(--bad);background:var(--bad-soft);text-decoration:underline dotted}
-.say-rom{text-align:center;font-family:ui-monospace,Menlo,monospace;color:var(--accent);font-size:14px}
+.say-pron{text-align:center;font-size:20px;font-weight:700;color:var(--seal);margin-top:2px}
+.g-items small.pron{color:var(--seal);font-weight:700;font-size:12.5px}
+.say-rom{opacity:.75;text-align:center;font-family:ui-monospace,Menlo,monospace;color:var(--accent);font-size:14px}
 .say-mean{text-align:center;color:var(--muted);font-size:14px;margin-bottom:12px}
 .mic{width:88px;height:88px;border-radius:50%;border:0;background:var(--seal);color:#fff;font-size:15px;display:grid;place-items:center;margin:0 auto}
 .mic.on{animation:pulse 1s infinite}
@@ -242,6 +244,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <p class="lead" data-t="sayLead"></p>
   <div class="q-card">
     <div class="say-target" id="sTarget"></div>
+    <div class="say-pron" id="sPron"></div>
     <div class="say-rom" id="sRom"></div>
     <div class="say-mean" id="sMean"></div>
     <div class="row" style="justify-content:center;margin-bottom:16px">
@@ -435,6 +438,21 @@ const GROUPS=[
  {ko:'단어',pt:'Palavras',items:WORDS.map(w=>[w[0],w[1]+' '+w[2],w[3]])}
 ];
 const PHRASES=GROUPS.flatMap(g=>g.items);
+// 브라질 사람이 읽기 쉬운 포르투갈어식 발음 (ㅎ=r de "rato", ㅓ=ó, ㅗ=ô, ㅈ=dj, ㅊ=tch)
+const PRON={
+ '안녕하세요':'an-nhiông-ra-sê-iô','안녕':'an-nhiông','좋은 아침이에요':'djô-un a-tchi-mi-ê-iô','만나서 반가워요':'man-na-só ban-ga-uó-iô',
+ '안녕히 가세요':'an-nhiông-ri ga-sê-iô','안녕히 계세요':'an-nhiông-ri guê-sê-iô','또 만나요':'ttô man-na-iô','잘 자요':'djal dja-iô',
+ '사랑해요':'sa-rang-ré-iô','보고 싶어요':'bô-gô si-pó-iô','좋아요':'djô-a-iô','행복해요':'réng-bô-kê-iô','예뻐요':'iê-ppó-iô',
+ '귀여워요':'gui-iô-uó-iô','배고파요':'bé-gô-pa-iô','피곤해요':'pi-gôn-ré-iô','화이팅':'ruá-i-ting',
+ '주세요':'dju-sê-iô','물 주세요':'mul dju-sê-iô','커피 주세요':'kó-pi dju-sê-iô','이거 주세요':'i-gó dju-sê-iô',
+ '강아지 주세요':'gang-a-dji dju-sê-iô','도와주세요':'dô-ua-dju-sê-iô','잠깐만요':'djam-kkan-man-nhiô','천천히 말해 주세요':'tchón-tchó-ni ma-ré dju-sê-iô',
+ '네':'nê','아니요':'a-ni-iô','감사합니다':'gam-sa-ram-ni-da','고마워요':'gô-ma-uó-iô','괜찮아요':'guén-tcha-na-iô',
+ '미안해요':'mi-a-né-iô','죄송합니다':'djuê-sông-ram-ni-da','알겠어요':'al-gué-ssó-iô','몰라요':'môl-la-iô',
+ '얼마예요':'ól-ma-iê-iô','깎아 주세요':'kka-kka dju-sê-iô','맛있어요':'ma-si-ssó-iô','계산해 주세요':'guê-sa-né dju-sê-iô',
+ '화장실 어디예요':'ruá-djang-sil ó-di-iê-iô',
+ '사과':'sa-guá','바나나':'ba-na-na','우유':'u-iu','물':'mul','고양이':'gô-iang-i','강아지':'gang-a-dji','나무':'na-mu',
+ '집':'djip','꽃':'kkôt','차':'tcha','책':'tchék','커피':'kó-pi','모자':'mô-dja','비':'bi','별':'biól','눈':'nun',
+ '손':'sôn','옷':'ôt','빵':'ppang','포도':'pô-dô','하늘':'ra-nul','바다':'ba-da','딸기':'ttal-gui','신발':'sin-bal'};
 
 /* ---------- 탭 ---------- */
 let tab='sound';
@@ -620,7 +638,7 @@ function renderSay(resetFb=true){
   const p=PHRASES[sIdx];
   $('sTarget').innerHTML=[...p[0]].map(ch=>ch===' '?' ':`<span data-ch="${ch}">${ch}</span>`).join('');
   bindSyl();
-  $('sRom').textContent=p[2];$('sMean').textContent=p[1];
+  $('sRom').textContent=p[2];$('sPron').textContent=PRON[p[0]]?'🇧🇷 '+PRON[p[0]]:'';$('sMean').textContent=p[1];
   if(resetFb){$('sFb').hidden=true;$('sStatus').textContent=''}
   $('sList').innerHTML='';
   let i=0;
@@ -628,7 +646,7 @@ function renderSay(resetFb=true){
     const h=document.createElement('div');h.className='g-head';h.textContent=lang==='ko'?g.ko+' · '+g.pt:g.pt+' · '+g.ko;$('sList').appendChild(h);
     const box=document.createElement('div');box.className='g-items';
     g.items.forEach(x=>{const idx=i++;const b=document.createElement('button');
-      b.innerHTML=`<b>${x[0]}</b><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
+      b.innerHTML=`<b>${x[0]}</b><small class="pron">${PRON[x[0]]||x[2]}</small><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
       b.onclick=()=>{sIdx=idx;renderSay();speak(x[0]);window.scrollTo({top:0,behavior:'smooth'})};box.appendChild(b)});
     $('sList').appendChild(box);
   });
