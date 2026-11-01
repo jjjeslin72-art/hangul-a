@@ -317,7 +317,7 @@ const T={
  slow:{ko:'천천히',pt:'Devagar'},
  tSound:{ko:'소리',pt:'Sons'},tBuild:{ko:'조합',pt:'Montar'},tWrite:{ko:'쓰기',pt:'Escrever'},tQuiz:{ko:'퀴즈',pt:'Quiz'},tSay:{ko:'말하기',pt:'Falar'},
  chart:{ko:'가나다라 표 (누르면 소리 나요)',pt:'Tabela Ga-Na-Da-Ra (toque para ouvir)'},
- lvNames:{ko:['한 글자','음식','동물·자연','인사','대답','마음','부탁하기','가게·식당','자기소개','생활 문장','K-POP 1','K-POP 2'],pt:['Palavras curtas','Comida','Animais','Saudações','Respostas','Sentimentos','Pedidos','Loja','Apresentação','Dia a dia','K-POP 1','K-POP 2']},
+ lvNames:{ko:['한 글자','음식','동물·자연','인사','대답','마음','부탁하기','가게·식당','자기소개','생활 문장','K-POP 1','K-POP 2','드라마 1','드라마 2'],pt:['Palavras curtas','Comida','Animais','Saudações','Respostas','Sentimentos','Pedidos','Loja','Apresentação','Dia a dia','K-POP 1','K-POP 2','Dorama 1','Dorama 2']},
  nextLv:{ko:'다음 단계 ▶',pt:'Próximo nível ▶'},lvWord:{ko:'단',pt:'Nível'},
  soundTitle:{ko:'자음과 모음 소리',pt:'Sons das consoantes e vogais'},
  soundLead:{ko:'글자를 누르면 소리가 나와요. 자음은 ㅏ를 붙여서 들려줘요.',pt:'Toque numa letra para ouvir. As consoantes são lidas com ㅏ (a).'},
@@ -523,7 +523,15 @@ const LEVELS=[
  [L('좋은 날','Dia bom','joeun nal','djô-un nal','🌞'),L('거짓말','Mentira','geojitmal','gó-djin-mal','🤥'),
   L('하루하루','Dia após dia','haruharu','ra-ru-ra-ru','📅'),L('빨간 맛','Sabor vermelho','ppalgan mat','ppal-gan mat','🍓'),
   L('아기상어','Bebê tubarão','agisangeo','a-gui-sang-ó','🦈'),L('밤편지','Carta da noite','bampyeonji','bam-pión-dji','✉️'),
-  L('소원을 말해봐','Faça um pedido','sowoneul malhaebwa','sô-uó-nul ma-ré-bua','🌠'),L('울고 싶지 않아','Não quero chorar','ulgo sipji ana','ul-gô sip-dji a-na','😢')]
+  L('소원을 말해봐','Faça um pedido','sowoneul malhaebwa','sô-uó-nul ma-ré-bua','🌠'),L('울고 싶지 않아','Não quero chorar','ulgo sipji ana','ul-gô sip-dji a-na','😢')],
+ [L('대박','Que incrível!','daebak','dé-bak','🤩'),L('진짜?','Sério?','jinjja','djin-tcha','😮'),
+  L('어떡해','Ai, e agora?','eotteokae','ó-ttó-ké','😱'),L('아이고','Ai, ai!','aigo','a-i-gô','😩'),
+  L('헐','Nossa! / Caramba!','heol','ról','😳'),L('미쳤어?','Ficou louco(a)?','michyeosseo','mi-tchó-ssó','🤯'),
+  L('잠깐만','Espera aí','jamkkanman','djam-kkan-man','✋'),L('왜 이래?','Por que está assim?','wae irae','ué i-ré','😤')],
+ [L('가지 마','Não vá','gaji ma','ga-dji ma','🚶'),L('보고 싶었어','Senti sua falta','bogo sipeosseo','bô-gô si-pó-ssó','🥺'),
+  L('사랑해','Te amo (informal)','saranghae','sa-rang-ré','❤️'),L('나랑 사귈래?','Quer namorar comigo?','narang sagwillae','na-rang sa-guil-lé','💌'),
+  L('괜찮아?','Você está bem?','gwaenchana','guén-tcha-na','🤗'),L('내가 지켜줄게','Eu vou te proteger','naega jikyeojulge','né-ga dji-kió-djul-ke','🛡️'),
+  L('밥 먹었어?','Já comeu?','bap meogeosseo','bap mó-gó-ssó','🍚'),L('행복하자','Vamos ser felizes','haengbokaja','réng-bô-ka-dja','🌈')]
 ];
 // K-POP 곡 (가사는 넣지 않고 제목·뜻 + 공식 뮤직비디오 검색 링크)
 const SONGS=[ // [가수, 한국어 제목, 영어 제목, 뜻, 발음, 단계]
@@ -713,7 +721,7 @@ function lvName(i){return T.lvNames[lang][i]}
 function renderQLevels(){
   const best=store.get('hg-qbest',{});
   $('qLevels').innerHTML=LEVELS.map((_,i)=>{const st=best[i]!=null?starsOf(best[i],LEVELS[i].length):-1;
-    return`<button class="lv${i>=10?' kpop':''}" data-lv="${i}" aria-pressed="${i===qLevel}"><b>${i>=10?'🎤 '+lvName(i):i+1}</b><small>${lvName(i)}</small><i>${st<0?'':'★'.repeat(st)+'☆'.repeat(3-st)}</i></button>`}).join('');
+    return`<button class="lv${i>=10?' kpop':''}" data-lv="${i}" aria-pressed="${i===qLevel}"><b>${i>=10?(i>=12?'🎬 ':'🎤 ')+lvName(i):i+1}</b><small>${lvName(i)}</small><i>${st<0?'':'★'.repeat(st)+'☆'.repeat(3-st)}</i></button>`}).join('');
   $('qLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>startQuiz(+b.dataset.lv));
 }
 function startQuiz(lv){
@@ -780,9 +788,9 @@ function renderSay(resetFb=true){
 }
 function renderSayList(){
   $('sLevels').innerHTML=LEVELS.map((L,i)=>{const n=L.filter(x=>said.has(x[0])).length;
-    return`<button class="lv${i>=10?' kpop':''}" data-lv="${i}" aria-pressed="${i===sLv}"><b>${i>=10?'🎤 '+lvName(i):i+1}</b><small>${lvName(i)}</small><i>${n?n+'/'+L.length:''}</i></button>`}).join('');
+    return`<button class="lv${i>=10?' kpop':''}" data-lv="${i}" aria-pressed="${i===sLv}"><b>${i>=10?(i>=12?'🎬 ':'🎤 ')+lvName(i):i+1}</b><small>${lvName(i)}</small><i>${n?n+'/'+L.length:''}</i></button>`}).join('');
   $('sLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{sLv=+b.dataset.lv;sIdx=0;store.set('hg-slv',sLv);renderSay();speak(SAYI()[0][0])});
-  $('sList').innerHTML=(sLv>=10?`<div class="g-head">${lang==='ko'?'🎬 뮤직비디오 보기':'🎬 Assistir ao clipe'}</div><div class="songs">`+SONGS.filter(x=>x[5]===sLv).map(x=>`<a class="song" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(x[0]+' '+x[1]+' '+x[2]+' official MV')}"><span class="artist">${x[0]}</span><b>${x[1]}</b><small class="pron">${x[4]}</small><small>${x[3]}</small></a>`).join('')+'</div>':'')+`<div class="g-head">${sLv>=10?lvName(sLv)+' · '+(lang==='ko'?'노래 속 단어':'Palavras das músicas'):(sLv+1)+(lang==='ko'?'단':'')+' · '+lvName(sLv)}</div>`;
+  $('sList').innerHTML=(SONGS.some(x=>x[5]===sLv)?`<div class="g-head">${lang==='ko'?'🎬 뮤직비디오 보기':'🎬 Assistir ao clipe'}</div><div class="songs">`+SONGS.filter(x=>x[5]===sLv).map(x=>`<a class="song" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(x[0]+' '+x[1]+' '+x[2]+' official MV')}"><span class="artist">${x[0]}</span><b>${x[1]}</b><small class="pron">${x[4]}</small><small>${x[3]}</small></a>`).join('')+'</div>':'')+`<div class="g-head">${sLv>=10?lvName(sLv)+' · '+(sLv>=12?(lang==='ko'?'드라마에 자주 나오는 말':'Frases comuns nos doramas'):(lang==='ko'?'노래 속 단어':'Palavras das músicas')):(sLv+1)+(lang==='ko'?'단':'')+' · '+lvName(sLv)}</div>`;
   const box=document.createElement('div');box.className='g-items';
   SAYI().forEach((x,idx)=>{const b=document.createElement('button');if(said.has(x[0]))b.classList.add('done');
     b.innerHTML=`<b>${x[0]}</b><small class="pron">${x[3]}</small><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
