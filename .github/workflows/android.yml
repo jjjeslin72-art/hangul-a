@@ -1,6 +1,8 @@
 name: Android 앱 만들기 (Play Store)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 permissions:
   contents: write
 jobs:
