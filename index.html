@@ -268,7 +268,9 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <h2 data-t="sayTitle"></h2>
   <p class="lead" data-t="sayLead"></p>
   <div class="levels" id="sLevels"></div>
-  <div class="q-card">
+  <div class="say-list" id="sList"></div>
+  <div class="q-card" id="sCard" style="margin-top:14px">
+    <div class="q-top" style="justify-content:center"><span id="sCount"></span></div>
     <div class="say-target" id="sTarget"></div>
     <div class="say-pron" id="sPron"></div>
     <div class="say-rom" id="sRom"></div>
@@ -282,8 +284,6 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   </div>
   <div class="feedback" id="sFb" hidden aria-live="polite"></div>
   <div class="note" id="sNote" hidden></div>
-  <div class="label" data-t="phrases"></div>
-  <div class="say-list" id="sList"></div>
 </section>
 </div>
 
@@ -732,6 +732,7 @@ const SAYI=()=>LEVELS[sLv];
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function renderSay(resetFb=true){
   const p=SAYI()[sIdx];
+  $('sCount').textContent=`${sLv+1}${lang==='ko'?'단':''} · ${sIdx+1} / ${SAYI().length}`;
   $('sTarget').innerHTML=[...p[0]].map(ch=>ch===' '?' ':`<span data-ch="${ch}">${ch}</span>`).join('');
   bindSyl();
   $('sRom').textContent=p[2];$('sPron').textContent=PRON[p[0]]?'🇧🇷 '+PRON[p[0]]:'';$('sMean').textContent=(p[4]?p[4]+' ':'')+p[1];
@@ -747,7 +748,7 @@ function renderSayList(){
   const box=document.createElement('div');box.className='g-items';
   SAYI().forEach((x,idx)=>{const b=document.createElement('button');if(said.has(x[0]))b.classList.add('done');
     b.innerHTML=`<b>${x[0]}</b><small class="pron">${x[3]}</small><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
-    b.onclick=()=>{sIdx=idx;renderSay();speak(x[0]);window.scrollTo({top:0,behavior:'smooth'})};box.appendChild(b)});
+    b.onclick=()=>{sIdx=idx;renderSay();speak(x[0]);$('sCard').scrollIntoView({behavior:'smooth',block:'center'})};box.appendChild(b)});
   $('sList').appendChild(box);
 }
 function bindSyl(){$('sTarget').querySelectorAll('span').forEach(sp=>sp.onclick=()=>speak(sp.dataset.ch,0.5))}
