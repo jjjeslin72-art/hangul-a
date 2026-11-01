@@ -1,0 +1,698 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>한글 첫걸음</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Gowun+Dodum&family=Noto+Sans+KR:wght@500;700&display=swap">
+<style>
+/* Layout: 원고지(manuscript-grid) notebook app — sticky header, one panel per tab, fixed bottom tab bar */
+:root{
+  --paper:#F5F7F5; --sheet:#FFFFFF; --ink:#1C2422; --muted:#5B6A66; --line:#D8E0DD;
+  --grid:#E7C3BD; --accent:#1F6F6B; --accent-soft:#DCEDEA; --seal:#C2402F;
+  --good:#2C8A4C; --good-soft:#DFF2E5; --bad:#C2402F; --bad-soft:#FBE3DF;
+  --f-disp:"Gowun Batang","Nanum Myeongjo",serif;
+  --f-body:"Gowun Dodum",system-ui,-apple-system,sans-serif;
+  --f-glyph:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#141A19; --sheet:#1D2523; --ink:#EAF0EE; --muted:#98A7A3; --line:#34413E;
+  --grid:#5C3A35; --accent:#62BDB4; --accent-soft:#1E3633; --seal:#E8735F;
+  --good:#5DC584; --good-soft:#1C3324; --bad:#F0806C; --bad-soft:#3A221E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#141A19; --sheet:#1D2523; --ink:#EAF0EE; --muted:#98A7A3; --line:#34413E;
+  --grid:#5C3A35; --accent:#62BDB4; --accent-soft:#1E3633; --seal:#E8735F;
+  --good:#5DC584; --good-soft:#1C3324; --bad:#F0806C; --bad-soft:#3A221E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(84px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);
+  display:flex;align-items:center;gap:10px;padding-block:12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.seal{width:36px;height:36px;border-radius:6px;background:var(--seal);color:#fff;display:grid;place-items:center;
+  font-family:var(--f-disp);font-size:20px;flex:none;transform:rotate(-4deg)}
+h1{font-family:var(--f-disp);font-size:22px;margin:0;line-height:1.1}
+h1 small{display:block;font-family:var(--f-body);font-size:12px;color:var(--muted);font-weight:400}
+.hdr-tools{margin-left:auto;display:flex;gap:6px}
+.pill{border:1px solid var(--line);background:var(--sheet);border-radius:999px;padding:6px 11px;font-size:13px;white-space:nowrap}
+.pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+h2{font-family:var(--f-disp);font-size:20px;margin:0 0 4px;text-wrap:balance}
+.lead{color:var(--muted);margin:0 0 14px;font-size:14px}
+.label{font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin:18px 0 8px}
+.panel[hidden]{display:none}
+
+/* tab bar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--sheet);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:10px;font-size:12px;color:var(--muted)}
+nav.tabs button b{font-family:var(--f-glyph);font-size:20px;line-height:1.2;font-weight:700}
+nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
+
+/* detail card */
+.detail{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.cell{width:108px;height:108px;position:relative;border:1.5px solid var(--grid);display:grid;place-items:center;
+  font-family:var(--f-glyph);font-size:70px;font-weight:500;line-height:1;background:var(--sheet)}
+.cell::before,.cell::after{content:"";position:absolute;background:none;border-color:var(--grid);border-style:dashed;opacity:.8}
+.cell::before{left:50%;top:0;bottom:0;border-width:0 0 0 1px}
+.cell::after{top:50%;left:0;right:0;border-width:1px 0 0 0}
+.cell span{position:relative;z-index:1}
+.d-name{font-family:var(--f-disp);font-size:20px}
+.d-rom{font-family:ui-monospace,Menlo,monospace;font-size:14px;color:var(--accent)}
+.d-hint{font-size:14px;color:var(--muted);margin:4px 0 10px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:9px 14px;font-size:14px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.btn.big{padding:13px 20px;font-size:16px}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* jamo grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.jamo{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:8px 2px 6px;text-align:center}
+.jamo b{display:block;font-family:var(--f-glyph);font-size:28px;font-weight:500;line-height:1.2}
+.jamo i{font-style:normal;font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+.jamo[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+
+/* builder */
+.formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
+.formula .op{color:var(--muted);font-size:20px}
+.formula .p{min-width:42px;text-align:center;border-bottom:2px solid var(--line)}
+.result{display:flex;justify-content:center;margin:8px 0}
+.result .cell{width:150px;height:150px;font-size:104px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--sheet);border-radius:8px;min-width:42px;padding:6px 8px;font-family:var(--f-glyph);font-size:20px;line-height:1.2}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.challenge{background:var(--accent-soft);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.challenge .tgt{font-family:var(--f-glyph);font-size:40px;font-weight:700;line-height:1}
+.challenge.done{background:var(--good-soft)}
+
+/* writing */
+.pad-wrap{display:flex;justify-content:center;margin:10px 0}
+.pad{position:relative;width:min(100%,320px);aspect-ratio:1;max-width:100%;border:2px solid var(--grid);background:var(--sheet);touch-action:none}
+.pad::before,.pad::after{content:"";position:absolute;border-color:var(--grid);border-style:dashed;pointer-events:none}
+.pad::before{left:50%;top:0;bottom:0;border-width:0 0 0 1px}
+.pad::after{top:50%;left:0;right:0;border-width:1px 0 0 0}
+.pad canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.stars{font-size:26px;letter-spacing:4px;text-align:center;min-height:36px;color:var(--seal)}
+.msg{text-align:center;font-size:14px;color:var(--muted);min-height:22px}
+.navrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+
+/* quiz */
+.q-top{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:6px 0 16px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.q-card{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:22px 16px;text-align:center}
+.q-pic{font-size:72px;line-height:1.1}
+.q-mean{color:var(--muted);margin-top:4px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.opt{border:1.5px solid var(--line);background:var(--sheet);border-radius:12px;padding:14px 6px;font-family:var(--f-glyph);font-size:24px;font-weight:500}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+.big-num{font-family:var(--f-disp);font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+
+/* speaking */
+.say-target{font-family:var(--f-glyph);font-size:40px;font-weight:700;letter-spacing:2px;text-align:center;line-height:1.3;word-break:keep-all}
+.say-target span{border-radius:6px;padding:0 2px;cursor:pointer}
+.say-target .ok{color:var(--good);background:var(--good-soft)}
+.say-target .miss{color:var(--bad);background:var(--bad-soft);text-decoration:underline dotted}
+.say-rom{text-align:center;font-family:ui-monospace,Menlo,monospace;color:var(--accent);font-size:14px}
+.say-mean{text-align:center;color:var(--muted);font-size:14px;margin-bottom:12px}
+.mic{width:88px;height:88px;border-radius:50%;border:0;background:var(--seal);color:#fff;font-size:15px;display:grid;place-items:center;margin:0 auto}
+.mic.on{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--seal) 50%,transparent)}50%{box-shadow:0 0 0 14px transparent}}
+@media (prefers-reduced-motion:reduce){.mic.on{animation:none;outline:4px solid var(--seal)}.bar i{transition:none}}
+.feedback{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:14px}
+.feedback[hidden]{display:none}
+.feedback .score{font-family:var(--f-disp);font-size:28px}
+.tips{margin:8px 0 0;padding-left:18px}
+.say-list{display:flex;flex-direction:column;gap:6px}
+.g-head{font-family:var(--f-disp);font-size:16px;margin-top:10px}
+.g-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.g-items button{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:8px 10px;text-align:left;min-width:0}
+.g-items b{display:block;font-family:var(--f-glyph);font-size:17px;font-weight:500;word-break:keep-all}
+.g-items small{display:block;font-size:12px;color:var(--muted);line-height:1.3}
+.g-items button[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.g-items button[aria-current="true"] b{color:var(--accent)}
+.note{font-size:13px;color:var(--muted);background:var(--accent-soft);border-radius:10px;padding:10px 12px;margin-top:12px}
+.note[hidden]{display:none}
+@media (max-width:420px){.detail{grid-template-columns:1fr;justify-items:center;text-align:center}.detail .row{justify-content:center}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="seal" aria-hidden="true">한</div>
+  <h1>한글 첫걸음<small data-t="sub"></small></h1>
+  <div class="hdr-tools">
+    <button class="pill" id="slowBtn" aria-pressed="false" data-t="slow"></button>
+    <button class="pill" id="langBtn">PT</button>
+  </div>
+</header>
+
+<!-- 1. 소리 -->
+<section class="panel" id="p-sound">
+  <h2 data-t="soundTitle"></h2>
+  <p class="lead" data-t="soundLead"></p>
+  <div class="detail" id="jDetail">
+    <div class="cell"><span id="jdGlyph">ㄱ</span></div>
+    <div>
+      <div class="d-name" id="jdName"></div>
+      <div class="d-rom" id="jdRom"></div>
+      <p class="d-hint" id="jdHint"></p>
+      <div class="row">
+        <button class="btn primary" id="jdPlay" data-t="listen"></button>
+        <button class="btn" id="jdName2" data-t="listenName"></button>
+        <button class="btn" id="jdWrite" data-t="goWrite"></button>
+      </div>
+    </div>
+  </div>
+  <div class="label" data-t="consonants"></div>
+  <div class="grid" id="gCons"></div>
+  <div class="label" data-t="dbl"></div>
+  <div class="grid" id="gDbl"></div>
+  <div class="label" data-t="vowels"></div>
+  <div class="grid" id="gVow"></div>
+  <div class="label" data-t="vowels2"></div>
+  <div class="grid" id="gVow2"></div>
+</section>
+
+<!-- 2. 조합 -->
+<section class="panel" id="p-build" hidden>
+  <h2 data-t="buildTitle"></h2>
+  <p class="lead" data-t="buildLead"></p>
+  <div class="formula"><span class="p" id="fC">ㄱ</span><span class="op">+</span><span class="p" id="fV">ㅏ</span><span class="op">+</span><span class="p" id="fJ">·</span><span class="op">=</span></div>
+  <div class="result"><div class="cell" id="bRes" role="button" tabindex="0"><span id="bResT">가</span></div></div>
+  <div class="msg" id="bRom"></div>
+  <div class="challenge" id="chal">
+    <div class="tgt" id="chalT">?</div>
+    <div style="flex:1;min-width:140px;font-size:14px" id="chalMsg"></div>
+    <button class="btn" id="chalBtn" data-t="newChal"></button>
+  </div>
+  <div class="label" data-t="first"></div><div class="chips" id="cC"></div>
+  <div class="label" data-t="middle"></div><div class="chips" id="cV"></div>
+  <div class="label" data-t="last"></div><div class="chips" id="cJ"></div>
+</section>
+
+<!-- 3. 쓰기 -->
+<section class="panel" id="p-write" hidden>
+  <h2 data-t="writeTitle"></h2>
+  <p class="lead" data-t="writeLead"></p>
+  <div class="row" role="group" id="wSets">
+    <button class="pill" data-set="c" aria-pressed="true" data-t="consonants"></button>
+    <button class="pill" data-set="v" aria-pressed="false" data-t="vowels"></button>
+    <button class="pill" data-set="s" aria-pressed="false" data-t="syll"></button>
+  </div>
+  <div class="pad-wrap"><div class="pad" id="pad"><canvas id="guide"></canvas><canvas id="ink"></canvas></div></div>
+  <div class="stars" id="wStars" aria-live="polite"></div>
+  <div class="msg" id="wMsg"></div>
+  <div class="navrow" style="margin-top:8px">
+    <button class="btn" id="wPrev" aria-label="이전">◀</button>
+    <div class="row">
+      <button class="btn" id="wClear" data-t="clear"></button>
+      <button class="btn" id="wPlay" data-t="listen"></button>
+      <button class="btn primary" id="wCheck" data-t="check"></button>
+    </div>
+    <button class="btn" id="wNext" aria-label="다음">▶</button>
+  </div>
+  <label class="row" style="justify-content:center;margin-top:12px;font-size:14px;color:var(--muted);gap:6px">
+    <input type="checkbox" id="wGuide" checked> <span data-t="showGuide"></span>
+  </label>
+</section>
+
+<!-- 4. 퀴즈 -->
+<section class="panel" id="p-quiz" hidden>
+  <h2 data-t="quizTitle"></h2>
+  <p class="lead" data-t="quizLead"></p>
+  <div id="qPlay">
+    <div class="q-top"><span id="qNum"></span><span id="qScore"></span></div>
+    <div class="bar"><i id="qBar" style="width:0"></i></div>
+    <div class="q-card" id="qCard"></div>
+    <div class="opts" id="qOpts"></div>
+  </div>
+  <div id="qEnd" hidden class="q-card">
+    <div class="big-num" id="qFinal"></div>
+    <p id="qFinalMsg"></p>
+    <p class="msg" id="qBest"></p>
+    <button class="btn primary big" id="qAgain" data-t="again"></button>
+  </div>
+</section>
+
+<!-- 5. 말하기 -->
+<section class="panel" id="p-say" hidden>
+  <h2 data-t="sayTitle"></h2>
+  <p class="lead" data-t="sayLead"></p>
+  <div class="q-card">
+    <div class="say-target" id="sTarget"></div>
+    <div class="say-rom" id="sRom"></div>
+    <div class="say-mean" id="sMean"></div>
+    <div class="row" style="justify-content:center;margin-bottom:16px">
+      <button class="btn" id="sPlay" data-t="listen"></button>
+      <button class="btn" id="sNext" data-t="next"></button>
+    </div>
+    <button class="mic" id="sMic" data-t="speak"></button>
+    <div class="msg" id="sStatus" style="margin-top:10px" aria-live="polite"></div>
+  </div>
+  <div class="feedback" id="sFb" hidden aria-live="polite"></div>
+  <div class="note" id="sNote" hidden></div>
+  <div class="label" data-t="phrases"></div>
+  <div class="say-list" id="sList"></div>
+</section>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-tab="sound" aria-selected="true"><b>ㄱ</b><span data-t="tSound"></span></button>
+  <button role="tab" data-tab="build" aria-selected="false"><b>가</b><span data-t="tBuild"></span></button>
+  <button role="tab" data-tab="write" aria-selected="false"><b>✎</b><span data-t="tWrite"></span></button>
+  <button role="tab" data-tab="quiz" aria-selected="false"><b>?</b><span data-t="tQuiz"></span></button>
+  <button role="tab" data-tab="say" aria-selected="false"><b>말</b><span data-t="tSay"></span></button>
+</nav>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- 언어 ---------- */
+let lang=store.get('hg-lang','ko');
+const T={
+ sub:{ko:'자음·모음부터 말하기까지',pt:'Aprenda o alfabeto coreano'},
+ slow:{ko:'천천히',pt:'Devagar'},
+ tSound:{ko:'소리',pt:'Sons'},tBuild:{ko:'조합',pt:'Montar'},tWrite:{ko:'쓰기',pt:'Escrever'},tQuiz:{ko:'퀴즈',pt:'Quiz'},tSay:{ko:'말하기',pt:'Falar'},
+ soundTitle:{ko:'자음과 모음 소리',pt:'Sons das consoantes e vogais'},
+ soundLead:{ko:'글자를 누르면 소리가 나와요. 자음은 ㅏ를 붙여서 들려줘요.',pt:'Toque numa letra para ouvir. As consoantes são lidas com ㅏ (a).'},
+ consonants:{ko:'자음',pt:'Consoantes'},dbl:{ko:'된소리 (쌍자음)',pt:'Consoantes duplas (tensas)'},
+ vowels:{ko:'모음',pt:'Vogais'},vowels2:{ko:'겹모음',pt:'Vogais compostas'},syll:{ko:'글자',pt:'Sílabas'},
+ listen:{ko:'🔊 듣기',pt:'🔊 Ouvir'},listenName:{ko:'이름 듣기',pt:'Ouvir o nome'},goWrite:{ko:'✎ 써보기',pt:'✎ Escrever'},
+ buildTitle:{ko:'글자 만들기',pt:'Monte sílabas'},
+ buildLead:{ko:'첫소리 + 가운뎃소리 + 받침을 골라 한 글자를 만들어요. 가운데 글자를 누르면 읽어줘요.',pt:'Escolha consoante + vogal + final (opcional). Toque na sílaba para ouvir.'},
+ first:{ko:'첫소리 (자음)',pt:'Inicial (consoante)'},middle:{ko:'가운뎃소리 (모음)',pt:'Vogal'},last:{ko:'받침 (없어도 돼요)',pt:'Final — batchim (opcional)'},
+ newChal:{ko:'도전!',pt:'Desafio!'},chalIdle:{ko:'도전을 누르면 만들 글자가 나와요.',pt:'Toque em Desafio para receber uma sílaba.'},
+ chalAsk:{ko:'이 글자를 만들어 보세요',pt:'Monte esta sílaba'},chalOk:{ko:'정답! 잘했어요 👏',pt:'Certo! Muito bem 👏'},
+ writeTitle:{ko:'따라 쓰기',pt:'Escreva junto'},
+ writeLead:{ko:'흐린 글자 위를 손가락으로 따라 쓰고 확인을 누르세요.',pt:'Trace a letra clara com o dedo e toque em Verificar.'},
+ clear:{ko:'지우기',pt:'Apagar'},check:{ko:'확인',pt:'Verificar'},showGuide:{ko:'흐린 글자 보이기',pt:'Mostrar a letra guia'},
+ w0:{ko:'먼저 써 보세요',pt:'Escreva primeiro'},w1:{ko:'조금 더 글자 모양에 맞춰 보세요',pt:'Tente seguir mais a forma'},w2:{ko:'좋아요! 거의 다 왔어요',pt:'Bom! Quase lá'},w3:{ko:'완벽해요!',pt:'Perfeito!'},
+ quizTitle:{ko:'단어 퀴즈',pt:'Quiz de palavras'},
+ quizLead:{ko:'그림을 보거나 소리를 듣고 맞는 한글을 고르세요. 10문제.',pt:'Veja a figura ou ouça e escolha a palavra certa. 10 perguntas.'},
+ qListen:{ko:'소리를 듣고 고르세요',pt:'Ouça e escolha'},qPic:{ko:'그림에 맞는 단어는?',pt:'Qual é a palavra?'},
+ again:{ko:'다시 하기',pt:'Jogar de novo'},best:{ko:'최고 기록',pt:'Recorde'},
+ end3:{ko:'대단해요! 한글 박사!',pt:'Incrível! Você é fera!'},end2:{ko:'잘했어요! 조금만 더!',pt:'Muito bem! Falta pouco!'},end1:{ko:'괜찮아요, 다시 해봐요!',pt:'Tudo bem, tente de novo!'},
+ sayTitle:{ko:'말하고 발음 교정',pt:'Fale e corrija a pronúncia'},
+ sayLead:{ko:'먼저 듣고, 마이크를 눌러 따라 말하세요. 틀린 글자는 빨간색으로 보여주고 고치는 법을 알려줘요.',pt:'Ouça, toque no microfone e repita. As sílabas erradas ficam em vermelho, com dicas.'},
+ speak:{ko:'말하기',pt:'Falar'},stop:{ko:'듣는 중…',pt:'Ouvindo…'},next:{ko:'다음 ▶',pt:'Próxima ▶'},phrases:{ko:'연습할 말 고르기',pt:'Escolha o que praticar'},
+ heard:{ko:'들린 말',pt:'Ouvi'},perfect:{ko:'완벽한 발음이에요!',pt:'Pronúncia perfeita!'},good:{ko:'좋아요! 빨간 글자만 다시 연습해요.',pt:'Bom! Pratique só as sílabas vermelhas.'},
+ retry:{ko:'다시 해봐요. 빨간 글자를 눌러 소리를 들어보세요.',pt:'Tente de novo. Toque nas sílabas vermelhas para ouvir.'},
+ noSpeech:{ko:'소리가 안 들렸어요. 조금 더 크게 말해 보세요.',pt:'Não ouvi nada. Fale um pouco mais alto.'},
+ micBlocked:{ko:'이 미리보기 화면에서는 마이크가 막혀 있어요. 앱 주소(GitHub Pages)로 크롬에서 열면 발음 교정이 돼요.',pt:'O microfone está bloqueado nesta prévia. Abra o app pelo endereço do GitHub Pages no Chrome.'},
+ noSR:{ko:'이 브라우저는 음성 인식을 지원하지 않아요. 안드로이드 크롬에서 열어 주세요.',pt:'Este navegador não reconhece voz. Use o Chrome no Android.'},
+ noVoice:{ko:'이 기기에 한국어 음성이 없어서 소리가 다르게 날 수 있어요. 설정 › 텍스트 음성 변환에서 한국어를 추가하세요.',pt:'Sem voz coreana neste aparelho. Adicione o coreano em Configurações › Conversão de texto em voz.'},
+ tipFor:{ko:'고치는 법',pt:'Como corrigir'}
+};
+const t=k=>(T[k]&&T[k][lang])||k;
+function applyLang(){
+  document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});
+  $('langBtn').textContent=lang==='ko'?'PT':'한국어';
+  $('langBtn').setAttribute('aria-label',lang==='ko'?'Português':'한국어');
+  renderDetail();renderChal();renderSay(false);if(qState)renderQ();
+}
+
+/* ---------- 소리 (TTS) ---------- */
+let slow=store.get('hg-slow',false),koVoice=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();koVoice=vs.find(v=>/^ko/i.test(v.lang))||null}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+let ttsOk=false;
+function ttsWarn(){
+  if(ttsOk)return;
+  let n=$('ttsNote');
+  if(!n){n=document.createElement('div');n.id='ttsNote';n.className='note';n.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:7;font-size:14px;color:var(--ink)';document.body.appendChild(n);n.onclick=()=>n.remove()}
+  n.textContent=lang==='ko'
+    ?'🔇 이 화면(Claude 앱 미리보기)에서는 소리가 안 나와요. 휴대폰 크롬에서 앱 주소를 열어 주세요. (누르면 닫혀요)'
+    :'🔇 Sem som nesta prévia do app Claude. Abra o endereço do app no Chrome do celular. (toque para fechar)';
+}
+function speak(txt,rate){
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){ttsWarn();return}
+  try{
+    speechSynthesis.cancel();
+    if(!koVoice)pickVoice();
+    const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';if(koVoice)u.voice=koVoice;
+    u.rate=rate||(slow?0.55:0.85);u.volume=1;
+    let started=false;
+    u.onstart=()=>{started=true;ttsOk=true;const n=$('ttsNote');if(n)n.remove()};
+    u.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled')ttsWarn()};
+    // 크롬 버그: cancel 직후 바로 speak 하면 무시되는 경우가 있어 잠깐 기다림
+    setTimeout(()=>{speechSynthesis.resume();speechSynthesis.speak(u)},60);
+    setTimeout(()=>{if(!started&&!ttsOk)ttsWarn()},2200);
+  }catch(e){ttsWarn()}
+}
+
+/* ---------- 한글 데이터 ---------- */
+const CHO='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'.split('');
+const JUNG='ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ'.split('');
+const JONG=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const compose=(c,v,j='')=>String.fromCharCode(0xAC00+(CHO.indexOf(c)*21+JUNG.indexOf(v))*28+JONG.indexOf(j));
+function decompose(s){const n=s.charCodeAt(0)-0xAC00;if(n<0||n>11171)return null;return[CHO[Math.floor(n/588)],JUNG[Math.floor(n%588/28)],JONG[n%28]]}
+
+// [글자, 이름, 로마자, 한국어 설명, 포르투갈어 설명, 예시단어]
+const CONS=[
+ ['ㄱ','기역','g / k','혀 뒤쪽이 입천장에 닿아요. g와 k 사이 소리','Entre G e K. 가 = "ga"','가방'],
+ ['ㄴ','니은','n','혀끝이 윗잇몸에 닿아요','Como N. 나 = "na"','나무'],
+ ['ㄷ','디귿','d / t','혀끝을 윗잇몸에 댔다 떼요. d와 t 사이','Entre D e T. 다 = "da"','다리'],
+ ['ㄹ','리을','r / l','모음 사이는 가벼운 r, 받침은 l','R fraco de "caro"; no final soa L','라면'],
+ ['ㅁ','미음','m','입술을 닫았다 열어요','Como M','모자'],
+ ['ㅂ','비읍','b / p','입술을 붙였다 떼요. b와 p 사이','Entre B e P','바다'],
+ ['ㅅ','시옷','s','ㅣ 앞에서는 "쉬"처럼 나요','Como S de "sapo"; antes de ㅣ soa "xi"','사과'],
+ ['ㅇ','이응','– / ng','첫소리는 소리 없음, 받침은 ng','Mudo no início; no final soa "ng"','우유'],
+ ['ㅈ','지읒','j','혀를 입천장에 대고 부드럽게','Como "dj" suave','지도'],
+ ['ㅊ','치읓','ch','ㅈ보다 바람을 세게','Como "tch" de "tchau"','차'],
+ ['ㅋ','키읔','k','ㄱ보다 바람을 세게','K com sopro de ar','커피'],
+ ['ㅌ','티읕','t','ㄷ보다 바람을 세게','T com sopro de ar','토마토'],
+ ['ㅍ','피읖','p','ㅂ보다 바람을 세게','P com sopro de ar','포도'],
+ ['ㅎ','히읗','h','목에서 바람을 내요','Como o R de "rato" (som de H)','하늘']];
+const DBL=[
+ ['ㄲ','쌍기역','kk','목에 힘을 주고 바람 없이 짧게','K forte e tenso, sem ar','꽃'],
+ ['ㄸ','쌍디귿','tt','혀끝에 힘을 주고 바람 없이','T forte e tenso, sem ar','떡'],
+ ['ㅃ','쌍비읍','pp','입술에 힘을 주고 바람 없이','P forte e tenso, sem ar','빵'],
+ ['ㅆ','쌍시옷','ss','ㅅ보다 날카롭고 세게','S forte e afiado','쌀'],
+ ['ㅉ','쌍지읒','jj','ㅈ보다 힘을 주고 짧게','"Tch" tenso, sem ar','짜장면']];
+const VOW=[
+ ['ㅏ','아','a','입을 크게 벌려요','Como "a"'],
+ ['ㅑ','야','ya','"이"+"아"를 빨리','Como "iá"'],
+ ['ㅓ','어','eo','입을 조금 벌리고 혀는 가운데','Como "ó" de "avó", com a boca menos aberta'],
+ ['ㅕ','여','yeo','"이"+"어"를 빨리','Como "ió"'],
+ ['ㅗ','오','o','입술을 동그랗게 모아요','Como "ô" de "avô", lábios redondos'],
+ ['ㅛ','요','yo','"이"+"오"를 빨리','Como "iô"'],
+ ['ㅜ','우','u','입술을 앞으로 쭉 내밀어요','Como "u"'],
+ ['ㅠ','유','yu','"이"+"우"를 빨리','Como "iu"'],
+ ['ㅡ','으','eu','입술을 옆으로 펴고 "우"','Não existe em português: diga "u" sorrindo, lábios esticados'],
+ ['ㅣ','이','i','입술을 옆으로 펴요','Como "i"']];
+const VOW2=[
+ ['ㅐ','애','ae','입을 조금 크게 "에"','Como "é"'],
+ ['ㅔ','에','e','요즘은 ㅐ와 거의 같아요','Como "ê" (hoje quase igual a ㅐ)'],
+ ['ㅒ','얘','yae','"이"+"애"','Como "ié"'],
+ ['ㅖ','예','ye','"이"+"에"','Como "iê"'],
+ ['ㅘ','와','wa','"오"+"아"를 빨리','Como "uá"'],
+ ['ㅙ','왜','wae','"오"+"애"를 빨리','Como "ué"'],
+ ['ㅚ','외','oe','요즘은 "웨"처럼 읽어요','Hoje soa como "uê"'],
+ ['ㅝ','워','wo','"우"+"어"를 빨리','Como "uó"'],
+ ['ㅞ','웨','we','"우"+"에"를 빨리','Como "uê"'],
+ ['ㅟ','위','wi','"우"+"이"를 빨리','Como "uí"'],
+ ['ㅢ','의','ui','"으"+"이"를 빨리','"ɯ" + "i" rápido (ㅡ seguido de ㅣ)']];
+const JAMO={};[...CONS,...DBL].forEach(a=>JAMO[a[0]]={g:a[0],name:a[1],rom:a[2],ko:a[3],pt:a[4],ex:a[5],type:'c'});
+[...VOW,...VOW2].forEach(a=>JAMO[a[0]]={g:a[0],name:a[1],rom:a[2],ko:a[3],pt:a[4],type:'v'});
+
+const WORDS=[
+ ['사과','🍎','maçã','sagwa'],['바나나','🍌','banana','banana'],['우유','🥛','leite','uyu'],['물','💧','água','mul'],
+ ['고양이','🐱','gato','goyangi'],['강아지','🐶','cachorro','gangaji'],['나무','🌳','árvore','namu'],['집','🏠','casa','jip'],
+ ['꽃','🌸','flor','kkot'],['차','🚗','carro','cha'],['책','📖','livro','chaek'],['커피','☕','café','keopi'],
+ ['모자','🧢','boné','moja'],['비','🌧️','chuva','bi'],['별','⭐','estrela','byeol'],['눈','👁️','olho','nun'],
+ ['손','✋','mão','son'],['옷','👕','roupa','ot'],['빵','🍞','pão','ppang'],['포도','🍇','uva','podo'],
+ ['하늘','🌤️','céu','haneul'],['바다','🌊','mar','bada'],['딸기','🍓','morango','ttalgi'],['신발','👟','sapato','sinbal']];
+// 자주 쓰는 표현: [한국어, 포르투갈어 뜻, 로마자]
+const GROUPS=[
+ {ko:'인사',pt:'Cumprimentos',items:[
+  ['안녕하세요','Olá / Bom dia','annyeonghaseyo'],['안녕','Oi (com amigos)','annyeong'],
+  ['좋은 아침이에요','Bom dia','joeun achimieyo'],['만나서 반가워요','Prazer em conhecer','mannaseo bangawoyo'],
+  ['안녕히 가세요','Tchau (para quem vai embora)','annyeonghi gaseyo'],['안녕히 계세요','Tchau (para quem fica)','annyeonghi gyeseyo'],
+  ['또 만나요','Até logo','tto mannayo'],['잘 자요','Boa noite (durma bem)','jal jayo']]},
+ {ko:'마음',pt:'Sentimentos',items:[
+  ['사랑해요','Eu te amo','saranghaeyo'],['보고 싶어요','Estou com saudade','bogo sipeoyo'],
+  ['좋아요','Gosto / Está bom','joayo'],['행복해요','Estou feliz','haengbokhaeyo'],
+  ['예뻐요','É bonito(a)','yeppeoyo'],['귀여워요','É fofo(a)','gwiyeowoyo'],
+  ['배고파요','Estou com fome','baegopayo'],['피곤해요','Estou cansado(a)','pigonhaeyo'],['화이팅','Força! / Vamos lá!','hwaiting']]},
+ {ko:'부탁',pt:'Pedidos',items:[
+  ['주세요','Me dá, por favor','juseyo'],['물 주세요','Água, por favor','mul juseyo'],
+  ['커피 주세요','Um café, por favor','keopi juseyo'],['이거 주세요','Quero este, por favor','igeo juseyo'],
+  ['강아지 주세요','O cachorrinho, por favor','gangaji juseyo'],['도와주세요','Me ajude, por favor','dowajuseyo'],
+  ['잠깐만요','Um momento','jamkkanmanyo'],['천천히 말해 주세요','Fale devagar, por favor','cheoncheonhi malhae juseyo']]},
+ {ko:'대답',pt:'Respostas',items:[
+  ['네','Sim','ne'],['아니요','Não','aniyo'],['감사합니다','Obrigado(a)','gamsahamnida'],['고마워요','Obrigado(a) (informal)','gomawoyo'],
+  ['괜찮아요','Tudo bem / Não tem problema','gwaenchanayo'],['미안해요','Desculpa','mianhaeyo'],
+  ['죄송합니다','Peço desculpas (formal)','joesonghamnida'],['알겠어요','Entendi','algesseoyo'],['몰라요','Não sei','mollayo']]},
+ {ko:'가게·식당',pt:'Loja e restaurante',items:[
+  ['얼마예요','Quanto custa?','eolmayeyo'],['깎아 주세요','Faz um desconto?','kkakka juseyo'],
+  ['맛있어요','Está gostoso','masisseoyo'],['계산해 주세요','A conta, por favor','gyesanhae juseyo'],
+  ['화장실 어디예요','Onde fica o banheiro?','hwajangsil eodiyeyo']]},
+ {ko:'단어',pt:'Palavras',items:WORDS.map(w=>[w[0],w[1]+' '+w[2],w[3]])}
+];
+const PHRASES=GROUPS.flatMap(g=>g.items);
+
+/* ---------- 탭 ---------- */
+let tab='sound';
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+function go(name){
+  tab=name;
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='p-'+name);
+  if(name==='write')requestAnimationFrame(sizePad);
+  if(name==='quiz'&&!qState)startQuiz();
+  window.scrollTo(0,0);
+}
+
+/* ---------- 1. 소리 ---------- */
+let cur='ㄱ';
+function soundOf(g){const j=JAMO[g];return j.type==='c'?compose(g,'ㅏ'):compose('ㅇ',g)}
+function fillGrid(id,list){
+  $(id).innerHTML='';
+  list.forEach(a=>{const b=document.createElement('button');b.className='jamo';b.innerHTML=`<b>${a[0]}</b><i>${a[2]}</i>`;
+    b.dataset.g=a[0];b.addEventListener('click',()=>{cur=a[0];renderDetail();speak(soundOf(cur))});$(id).appendChild(b)});
+}
+fillGrid('gCons',CONS);fillGrid('gDbl',DBL);fillGrid('gVow',VOW);fillGrid('gVow2',VOW2);
+function renderDetail(){
+  const j=JAMO[cur];
+  $('jdGlyph').textContent=j.g;$('jdName').textContent=j.name+(j.type==='c'?'  ·  '+soundOf(j.g):'');
+  $('jdRom').textContent=j.rom;
+  $('jdHint').textContent=(lang==='ko'?j.ko:j.pt)+(j.ex?(lang==='ko'?'  예: ':'  Ex.: ')+j.ex:'');
+  $('jdName2').hidden=j.type!=='c';
+  document.querySelectorAll('.jamo').forEach(b=>b.setAttribute('aria-current',b.dataset.g===cur));
+}
+$('jdPlay').onclick=()=>{const j=JAMO[cur];speak(j.ex?soundOf(cur)+'. '+j.ex:soundOf(cur))};
+$('jdName2').onclick=()=>speak(JAMO[cur].name);
+$('jdWrite').onclick=()=>{const j=JAMO[cur];wSet=j.type==='c'?'c':'v';wIdx=Math.max(0,writeList().indexOf(cur));syncSets();go('write');loadW()};
+
+/* ---------- 2. 조합 ---------- */
+let bC='ㄱ',bV='ㅏ',bJ='',chal=null;
+const BJ=['','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
+function chips(id,list,get,set){
+  const box=$(id);box.innerHTML='';
+  list.forEach(x=>{const b=document.createElement('button');b.className='chip';b.textContent=x||'✕';
+    b.setAttribute('aria-label',x||(lang==='ko'?'받침 없음':'sem final'));
+    b.addEventListener('click',()=>{set(x);paint();renderBuild()});box.appendChild(b)});
+  function paint(){[...box.children].forEach((b,i)=>b.setAttribute('aria-pressed',list[i]===get()))}
+  paint();return paint;
+}
+const pC=chips('cC',CHO,()=>bC,x=>bC=x),pV=chips('cV',JUNG,()=>bV,x=>bV=x),pJ=chips('cJ',BJ,()=>bJ,x=>bJ=x);
+const ROM_C={'ㄱ':'g','ㄲ':'kk','ㄴ':'n','ㄷ':'d','ㄸ':'tt','ㄹ':'r','ㅁ':'m','ㅂ':'b','ㅃ':'pp','ㅅ':'s','ㅆ':'ss','ㅇ':'','ㅈ':'j','ㅉ':'jj','ㅊ':'ch','ㅋ':'k','ㅌ':'t','ㅍ':'p','ㅎ':'h'};
+const ROM_J={'':'','ㄱ':'k','ㄴ':'n','ㄷ':'t','ㄹ':'l','ㅁ':'m','ㅂ':'p','ㅅ':'t','ㅇ':'ng','ㅈ':'t','ㅊ':'t','ㅎ':'t'};
+function renderBuild(){
+  const s=compose(bC,bV,bJ);
+  $('fC').textContent=bC;$('fV').textContent=bV;$('fJ').textContent=bJ||'·';$('bResT').textContent=s;
+  $('bRom').textContent=ROM_C[bC]+JAMO[bV].rom+ROM_J[bJ];
+  speak(s);
+  if(chal&&s===chal&&!chal.done){chal={done:true,s:chal};}
+  renderChal();
+}
+function renderChal(){
+  const box=$('chal');
+  if(!chal){box.classList.remove('done');$('chalT').textContent='?';$('chalMsg').textContent=t('chalIdle');return}
+  if(chal.done){box.classList.add('done');$('chalT').textContent=chal.s;$('chalMsg').textContent=t('chalOk');return}
+  box.classList.remove('done');$('chalT').textContent=chal;$('chalMsg').textContent=t('chalAsk');
+}
+$('chalBtn').onclick=()=>{
+  const pool=[...new Set(WORDS.map(w=>w[0]).join('').split(''))].filter(ch=>{const d=decompose(ch);return d&&BJ.includes(d[2])});
+  let n;do{n=pool[Math.floor(Math.random()*pool.length)]}while(chal&&n===(chal.s||chal));
+  chal=n;renderChal();speak(n);
+};
+const sayRes=()=>speak($('bResT').textContent);
+$('bRes').onclick=sayRes;$('bRes').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sayRes()}};
+
+/* ---------- 3. 쓰기 ---------- */
+const SYL=['가','나','다','마','바','사','아','한','글','물','집','꽃','책','별','눈','손','빵','엄','마'];
+let wSet='c',wIdx=0;
+const writeList=()=>wSet==='c'?[...CONS,...DBL].map(a=>a[0]):wSet==='v'?[...VOW,...VOW2].map(a=>a[0]):SYL;
+function syncSets(){document.querySelectorAll('#wSets .pill').forEach(b=>b.setAttribute('aria-pressed',b.dataset.set===wSet))}
+document.querySelectorAll('#wSets .pill').forEach(b=>b.onclick=()=>{wSet=b.dataset.set;wIdx=0;syncSets();loadW()});
+const guide=$('guide'),ink=$('ink'),gx=guide.getContext('2d'),ix=ink.getContext('2d');
+let padPx=0,drawn=false;
+const GLYPH_FONT='"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+function drawGlyph(ctx,size,g,style){
+  ctx.save();ctx.font=`500 ${Math.round(size*0.74)}px ${GLYPH_FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  if(style.fill){ctx.fillStyle=style.fill;ctx.fillText(g,size/2,size/2+size*0.02)}
+  if(style.stroke){ctx.strokeStyle=style.stroke;ctx.lineWidth=style.lw;ctx.lineJoin='round';ctx.strokeText(g,size/2,size/2+size*0.02)}
+  ctx.restore();
+}
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function sizePad(){
+  const r=$('pad').getBoundingClientRect();if(!r.width)return;
+  const dpr=window.devicePixelRatio||1,px=Math.round(r.width*dpr);
+  if(px!==padPx){padPx=px;[guide,ink].forEach(c=>{c.width=px;c.height=px});drawn=false}
+  paintGuide();
+}
+function paintGuide(){
+  gx.clearRect(0,0,padPx,padPx);
+  if($('wGuide').checked)drawGlyph(gx,padPx,writeList()[wIdx],{fill:cssVar('--line')});
+}
+function loadW(){ix.clearRect(0,0,padPx,padPx);drawn=false;$('wStars').textContent='';$('wMsg').textContent='';sizePad()}
+let down=false,last=null;
+function pt(e){const r=ink.getBoundingClientRect();return[(e.clientX-r.left)/r.width*padPx,(e.clientY-r.top)/r.height*padPx]}
+ink.addEventListener('pointerdown',e=>{down=true;ink.setPointerCapture(e.pointerId);last=pt(e);dot(last)});
+ink.addEventListener('pointermove',e=>{if(!down)return;const p=pt(e);line(last,p);last=p});
+['pointerup','pointercancel'].forEach(ev=>ink.addEventListener(ev,()=>{down=false}));
+function pen(){ix.strokeStyle=cssVar('--ink');ix.fillStyle=cssVar('--ink');ix.lineWidth=padPx*0.06;ix.lineCap='round';ix.lineJoin='round'}
+function dot(p){pen();ix.beginPath();ix.arc(p[0],p[1],padPx*0.03,0,7);ix.fill();drawn=true}
+function line(a,b){pen();ix.beginPath();ix.moveTo(a[0],a[1]);ix.lineTo(b[0],b[1]);ix.stroke();drawn=true}
+function scoreW(){
+  const S=200,g=writeList()[wIdx];
+  const mk=()=>{const c=document.createElement('canvas');c.width=c.height=S;return c.getContext('2d',{willReadFrequently:true})};
+  const tg=mk(),th=mk(),us=mk();
+  drawGlyph(tg,S,g,{fill:'#000'});
+  drawGlyph(th,S,g,{fill:'#000',stroke:'#000',lw:S*0.07});
+  us.drawImage(ink,0,0,S,S);
+  const A=tg.getImageData(0,0,S,S).data,B=th.getImageData(0,0,S,S).data,U=us.getImageData(0,0,S,S).data;
+  let tN=0,cov=0,uN=0,inN=0;
+  for(let i=3;i<A.length;i+=4){const tA=A[i]>100,uA=U[i]>60;if(tA){tN++;if(uA)cov++}if(uA){uN++;if(B[i]>60)inN++}}
+  if(!uN||!tN)return 0;
+  return Math.min(1,(cov/tN)/0.6)*Math.min(1,(inN/uN)/0.8);
+}
+$('wCheck').onclick=()=>{
+  if(!drawn){$('wMsg').textContent=t('w0');return}
+  const s=scoreW(),n=s>=0.8?3:s>=0.55?2:s>=0.3?1:0;
+  $('wStars').textContent='★'.repeat(n)+'☆'.repeat(3-n);
+  $('wMsg').textContent=t(n===3?'w3':n===2?'w2':'w1');
+  if(n===3)speak(writeList()[wIdx].length===1&&JAMO[writeList()[wIdx]]?soundOf(writeList()[wIdx]):writeList()[wIdx]);
+};
+$('wClear').onclick=loadW;
+$('wPlay').onclick=()=>{const g=writeList()[wIdx];speak(JAMO[g]?soundOf(g):g)};
+$('wPrev').onclick=()=>{const L=writeList();wIdx=(wIdx-1+L.length)%L.length;loadW()};
+$('wNext').onclick=()=>{const L=writeList();wIdx=(wIdx+1)%L.length;loadW()};
+$('wGuide').onchange=paintGuide;
+window.addEventListener('resize',()=>{if(tab==='write')sizePad()});
+if(document.fonts&&document.fonts.load)document.fonts.load(`500 100px "Noto Sans KR"`,'가ㄱ').then(()=>{if(tab==='write')paintGuide()}).catch(()=>{});
+
+/* ---------- 4. 퀴즈 ---------- */
+let qState=null;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function startQuiz(){
+  const wq=shuffle(WORDS).slice(0,6).map((w,i)=>({w,type:i%3===2?'listen':'pic',
+    opts:shuffle([w,...shuffle(WORDS.filter(x=>x!==w)).slice(0,3)])}));
+  const PH=GROUPS.slice(0,5).flatMap(g=>g.items);
+  const pq=shuffle(PH).slice(0,4).map(p=>({w:p,type:'mean',
+    opts:shuffle([p,...shuffle(PH.filter(x=>x!==p&&x[1]!==p[1])).slice(0,3)])}));
+  const qs=shuffle([...wq,...pq]);
+  qState={qs,i:0,score:0,answered:false};$('qEnd').hidden=true;$('qPlay').hidden=false;renderQ();
+}
+function renderQ(){
+  const s=qState,q=s.qs[s.i];
+  $('qNum').textContent=`${s.i+1} / ${s.qs.length}`;$('qScore').textContent=`★ ${s.score}`;
+  $('qBar').style.width=(s.i/s.qs.length*100)+'%';
+  if(q.type==='mean'){
+    $('qCard').innerHTML=`<div style="font-family:var(--f-disp);font-size:26px;line-height:1.3">“${q.w[1]}”</div><div class="msg" style="margin-top:6px">${lang==='ko'?'이 뜻의 한국말은?':'Como se diz em coreano?'}</div>`;
+  }else if(q.type==='pic'){
+    $('qCard').innerHTML=`<div class="q-pic" aria-hidden="true">${q.w[1]}</div><div class="q-mean">${q.w[2]}</div><div class="msg">${t('qPic')}</div>`;
+  }else{
+    $('qCard').innerHTML=`<button class="btn primary big" id="qHear">🔊</button><div class="msg" style="margin-top:8px">${t('qListen')}</div>`;
+    $('qHear').onclick=()=>speak(q.w[0]);
+    if(!s.answered)setTimeout(()=>speak(q.w[0]),250);
+  }
+  $('qOpts').innerHTML='';
+  q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o[0];b.style.wordBreak='keep-all';if(o[0].length>5)b.style.fontSize='18px';b.onclick=()=>answer(o,b);$('qOpts').appendChild(b)});
+}
+function answer(o,btn){
+  const s=qState,q=s.qs[s.i];if(s.answered)return;s.answered=true;
+  const ok=o===q.w;if(ok)s.score++;
+  [...$('qOpts').children].forEach(b=>{if(b.textContent===q.w[0])b.classList.add('ok')});
+  if(!ok)btn.classList.add('no');
+  $('qScore').textContent=`★ ${s.score}`;speak(q.w[0]);
+  setTimeout(()=>{s.i++;s.answered=false;if(s.i>=s.qs.length)endQuiz();else renderQ()},1300);
+}
+function endQuiz(){
+  const s=qState,best=Math.max(store.get('hg-best',0),s.score);store.set('hg-best',best);
+  $('qPlay').hidden=true;$('qEnd').hidden=false;$('qBar').style.width='100%';
+  $('qFinal').textContent=`${s.score} / ${s.qs.length}`;
+  $('qFinalMsg').textContent=t(s.score>=9?'end3':s.score>=6?'end2':'end1');
+  $('qBest').textContent=`${t('best')}: ${best}`;
+}
+$('qAgain').onclick=startQuiz;
+
+/* ---------- 5. 말하기 + 발음 교정 ---------- */
+let sIdx=0,rec=null,listening=false;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function renderSay(resetFb=true){
+  const p=PHRASES[sIdx];
+  $('sTarget').innerHTML=[...p[0]].map(ch=>ch===' '?' ':`<span data-ch="${ch}">${ch}</span>`).join('');
+  bindSyl();
+  $('sRom').textContent=p[2];$('sMean').textContent=p[1];
+  if(resetFb){$('sFb').hidden=true;$('sStatus').textContent=''}
+  $('sList').innerHTML='';
+  let i=0;
+  GROUPS.forEach(g=>{
+    const h=document.createElement('div');h.className='g-head';h.textContent=lang==='ko'?g.ko+' · '+g.pt:g.pt+' · '+g.ko;$('sList').appendChild(h);
+    const box=document.createElement('div');box.className='g-items';
+    g.items.forEach(x=>{const idx=i++;const b=document.createElement('button');
+      b.innerHTML=`<b>${x[0]}</b><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
+      b.onclick=()=>{sIdx=idx;renderSay();speak(x[0]);window.scrollTo({top:0,behavior:'smooth'})};box.appendChild(b)});
+    $('sList').appendChild(box);
+  });
+  $('sMic').textContent=listening?t('stop'):t('speak');
+}
+function bindSyl(){$('sTarget').querySelectorAll('span').forEach(sp=>sp.onclick=()=>speak(sp.dataset.ch,0.5))}
+$('sPlay').onclick=()=>speak(PHRASES[sIdx][0]);
+$('sNext').onclick=()=>{sIdx=(sIdx+1)%PHRASES.length;renderSay();speak(PHRASES[sIdx][0])};
+const clean=s=>[...s].filter(ch=>/[가-힣]/.test(ch));
+function align(target,heard){ // LCS: target 각 글자가 맞았는지
+  const a=clean(target),b=heard,n=a.length,m=b.length,D=[...Array(n+1)].map(()=>Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)D[i][j]=a[i]===b[j]?D[i+1][j+1]+1:Math.max(D[i+1][j],D[i][j+1]);
+  const ok=Array(n).fill(false);let i=0,j=0;
+  while(i<n&&j<m){if(a[i]===b[j]){ok[i]=true;i++;j++}else if(D[i+1][j]>=D[i][j+1])i++;else j++}
+  return{ok,score:n?D[0][0]/n:0};
+}
+function evaluate(alts){
+  const target=PHRASES[sIdx][0];let best=null;
+  alts.forEach(txt=>{const r=align(target,clean(txt));if(!best||r.score>best.score)best={...r,txt}});
+  const syl=clean(target);let k=0;
+  $('sTarget').innerHTML=[...target].map(ch=>{if(ch===' ')return' ';const cls=best.ok[k++]?'ok':'miss';return`<span class="${cls}" data-ch="${ch}">${ch}</span>`}).join('');
+  bindSyl();
+  const pct=Math.round(best.score*100),missed=syl.filter((_,i)=>!best.ok[i]);
+  const tips=[...new Set(missed)].slice(0,4).map(ch=>{
+    const d=decompose(ch);if(!d)return'';
+    const parts=d.filter(Boolean).map(x=>{const j=JAMO[x];return j?`<b>${x}</b> ${lang==='ko'?j.ko:j.pt}`:`<b>${x}</b>`});
+    return`<li><b style="font-size:18px">${ch}</b> = ${d.filter(Boolean).join(' + ')}<br>${parts.join('<br>')}</li>`}).join('');
+  $('sFb').innerHTML=`<div class="score">${pct}%</div>
+    <div>${t(pct===100?'perfect':pct>=70?'good':'retry')}</div>
+    <div class="msg" style="text-align:left;margin-top:4px">${t('heard')}: “${best.txt||'…'}”</div>
+    ${tips?`<div class="label" style="margin-top:10px">${t('tipFor')}</div><ul class="tips">${tips}</ul>`:''}`;
+  $('sFb').hidden=false;
+}
+function stopListen(){listening=false;$('sMic').classList.remove('on');$('sMic').textContent=t('speak')}
+$('sMic').onclick=()=>{
+  if(listening){try{rec.stop()}catch(e){}return}
+  if(!SR){showNote('noSR');return}
+  speechSynthesis&&speechSynthesis.cancel();
+  rec=new SR();rec.lang='ko-KR';rec.interimResults=true;rec.maxAlternatives=5;rec.continuous=false;
+  let finalAlts=null;
+  rec.onresult=e=>{
+    const r=e.results[e.results.length-1];
+    $('sStatus').textContent='“'+r[0].transcript+'”';
+    if(r.isFinal)finalAlts=[...r].map(a=>a.transcript);
+  };
+  rec.onerror=e=>{
+    if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error))showNote('micBlocked');
+    else if(e.error==='no-speech')$('sStatus').textContent=t('noSpeech');
+    stopListen();
+  };
+  rec.onend=()=>{stopListen();if(finalAlts)evaluate(finalAlts)};
+  try{rec.start();listening=true;$('sMic').classList.add('on');$('sMic').textContent=t('stop');$('sStatus').textContent='';$('sNote').hidden=true}
+  catch(e){showNote('micBlocked')}
+};
+function showNote(k){$('sNote').textContent=t(k);$('sNote').hidden=false}
+
+/* ---------- 시작 ---------- */
+$('langBtn').onclick=()=>{lang=lang==='ko'?'pt':'ko';store.set('hg-lang',lang);applyLang()};
+$('slowBtn').setAttribute('aria-pressed',slow);
+$('slowBtn').onclick=()=>{slow=!slow;store.set('hg-slow',slow);$('slowBtn').setAttribute('aria-pressed',slow)};
+// 첫 화면에서는 소리 없이 그리기
+(function initBuild(){const s=compose(bC,bV,bJ);$('fC').textContent=bC;$('fV').textContent=bV;$('fJ').textContent='·';$('bResT').textContent=s;$('bRom').textContent='ga'})();
+applyLang();
+setTimeout(()=>{if('speechSynthesis' in window&&speechSynthesis.getVoices().length&&!koVoice){const n=document.createElement('div');n.className='note';n.textContent=t('noVoice');$('p-sound').insertBefore(n,$('jDetail'))}},1500);
+})();
+</script>
+</body></html>
