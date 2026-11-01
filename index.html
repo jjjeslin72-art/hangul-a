@@ -43,7 +43,7 @@ h2{font-family:var(--f-disp);font-size:20px;margin:0 0 4px;text-wrap:balance}
 
 /* tab bar */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--sheet);border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(5,1fr);
+  display:grid;grid-template-columns:repeat(6,1fr);
   padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
 nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:10px;font-size:12px;color:var(--muted)}
 nav.tabs button b{font-family:var(--f-glyph);font-size:20px;line-height:1.2;font-weight:700}
@@ -98,6 +98,26 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .song small{display:block;font-size:12px;color:var(--muted);line-height:1.3}
 .song small.pron{color:var(--seal);font-weight:700}
 .song::after{content:"▶ YouTube";display:block;font-size:11px;color:var(--accent);margin-top:3px}
+.song-list{display:flex;flex-direction:column;gap:8px}
+.scard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);background:var(--sheet);border-radius:12px;padding:12px;text-align:left;width:100%}
+.scard .disc{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--seal);color:#fff;font-size:20px}
+.scard.mine .disc{background:var(--accent)}
+.scard b{display:block;font-family:var(--f-glyph);font-size:17px;font-weight:500}
+.scard small{display:block;font-size:12.5px;color:var(--muted)}
+.fl{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:14px}
+.fl input,.fl textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
+.lyrics{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:6px}
+.lyrics li{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:10px 12px;cursor:pointer;transition:background .2s}
+.lyrics li b{display:block;font-family:var(--f-glyph);font-size:20px;font-weight:500;word-break:keep-all}
+.lyrics li .pron{display:block;font-size:13.5px;font-weight:700;color:var(--seal)}
+.lyrics li small{display:block;font-size:13px;color:var(--muted)}
+.lyrics li.on{background:var(--accent-soft);border-color:var(--accent)}
+.lyrics li.on b{color:var(--accent)}
+.tapbar{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:7;display:flex;gap:8px;justify-content:center;
+  padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--sheet);border-top:1px solid var(--line)}
+.tapbar #vTapNext{flex:1;max-width:360px}
+.copybox{font-size:13px;background:var(--paper);border-radius:8px;padding:8px;margin:6px 0;word-break:break-word}
+@media (prefers-reduced-motion:reduce){.lyrics li{transition:none}}
 /* builder */
 .formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
 .formula .op{color:var(--muted);font-size:20px}
@@ -294,6 +314,41 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <div class="feedback" id="sFb" hidden aria-live="polite"></div>
   <div class="note" id="sNote" hidden></div>
 </section>
+
+<!-- 6. 노래 -->
+<section class="panel" id="p-song" hidden>
+  <div id="nHome">
+    <h2 data-t="songTitle"></h2>
+    <p class="lead" data-t="songLead"></p>
+    <div class="song-list" id="nList"></div>
+    <button class="btn primary big" id="nAddBtn" style="width:100%;margin-top:12px" data-t="addSong"></button>
+    <form id="nForm" class="feedback" hidden>
+      <label class="fl"><span data-t="fTitle"></span><input id="fTitle" required></label>
+      <label class="fl"><span data-t="fAudio"></span><input id="fAudio" type="file" accept="audio/*"></label>
+      <label class="fl"><span data-t="fLyrics"></span><textarea id="fLyrics" rows="8" required placeholder="안녕하세요 반가워요 | Olá, prazer
+고마워요 | Obrigado"></textarea></label>
+      <p class="msg" style="text-align:left" data-t="fHint"></p>
+      <div class="row"><button class="btn primary" type="submit" data-t="save"></button><button class="btn" type="button" id="fCancel" data-t="cancel"></button></div>
+    </form>
+  </div>
+  <div id="nView" hidden>
+    <button class="btn" id="nBack" data-t="back"></button>
+    <h2 id="vTitle" style="margin-top:12px"></h2>
+    <p class="lead" id="vSub"></p>
+    <audio id="vAudio" controls preload="metadata" style="width:100%" hidden></audio>
+    <div class="note" id="vNoAudio"></div>
+    <div class="row" style="margin-top:10px">
+      <label class="btn" for="vFile" data-t="putMp3"></label><input id="vFile" type="file" accept="audio/*" hidden>
+      <button class="btn" id="vTimeBtn" data-t="timing"></button>
+      <button class="btn" id="vDel" hidden data-t="del"></button>
+    </div>
+    <div class="feedback" id="vStyle" hidden></div>
+    <div class="feedback" id="vConfirm" hidden><span data-t="delAsk"></span>
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="vDelYes" data-t="del"></button><button class="btn" id="vDelNo" data-t="cancel"></button></div></div>
+    <ol class="lyrics" id="vLyrics"></ol>
+    <div class="tapbar" id="vTap" hidden><button class="btn primary big" id="vTapNext"></button><button class="btn" id="vTapStop" data-t="cancel"></button></div>
+  </div>
+</section>
 </div>
 
 <nav class="tabs" role="tablist">
@@ -302,6 +357,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <button role="tab" data-tab="write" aria-selected="false"><b>✎</b><span data-t="tWrite"></span></button>
   <button role="tab" data-tab="quiz" aria-selected="false"><b>?</b><span data-t="tQuiz"></span></button>
   <button role="tab" data-tab="say" aria-selected="false"><b>말</b><span data-t="tSay"></span></button>
+  <button role="tab" data-tab="song" aria-selected="false"><b>♪</b><span data-t="tSong"></span></button>
 </nav>
 
 <script>
@@ -319,6 +375,20 @@ const T={
  chart:{ko:'가나다라 표 (누르면 소리 나요)',pt:'Tabela Ga-Na-Da-Ra (toque para ouvir)'},
  lvNames:{ko:['한 글자','음식','동물·자연','인사','대답','마음','부탁하기','가게·식당','자기소개','생활 문장','K-POP 1','K-POP 2','드라마 1','드라마 2'],pt:['Palavras curtas','Comida','Animais','Saudações','Respostas','Sentimentos','Pedidos','Loja','Apresentação','Dia a dia','K-POP 1','K-POP 2','Dorama 1','Dorama 2']},
  nextLv:{ko:'다음 단계 ▶',pt:'Próximo nível ▶'},lvWord:{ko:'단',pt:'Nível'},
+ tSong:{ko:'노래',pt:'Músicas'},songTitle:{ko:'한글 노래방',pt:'Karaokê de coreano'},
+ songLead:{ko:'노래를 들으며 가사를 따라 불러요. Suno로 만든 내 노래도 넣을 수 있어요. 가사 줄을 누르면 읽어줘요.',pt:'Ouça e cante junto. Você pode adicionar suas músicas do Suno. Toque numa linha para ouvi-la.'},
+ addSong:{ko:'+ 내 Suno 노래 추가',pt:'+ Adicionar minha música do Suno'},fTitle:{ko:'노래 제목',pt:'Título'},
+ fAudio:{ko:'노래 파일 (mp3, 나중에 넣어도 돼요)',pt:'Arquivo (mp3, pode adicionar depois)'},fLyrics:{ko:'한국어 가사 (한 줄에 한 줄씩)',pt:'Letra em coreano (uma linha por verso)'},
+ fHint:{ko:'뜻을 넣으려면 줄 끝에 | 를 쓰고 포르투갈어를 쓰세요. 브라질식 발음은 자동으로 만들어져요.',pt:'Para o significado, escreva | e o português no fim da linha. A pronúncia é gerada automaticamente.'},
+ save:{ko:'저장',pt:'Salvar'},cancel:{ko:'취소',pt:'Cancelar'},back:{ko:'◀ 노래 목록',pt:'◀ Músicas'},
+ putMp3:{ko:'🎵 Suno 파일 넣기',pt:'🎵 Pôr arquivo do Suno'},timing:{ko:'⏱ 가사 박자 맞추기',pt:'⏱ Sincronizar letra'},
+ del:{ko:'삭제',pt:'Excluir'},delAsk:{ko:'이 노래를 지울까요?',pt:'Excluir esta música?'},
+ noAudio:{ko:'아직 노래 파일이 없어요. 아래 Suno 스타일과 가사로 Suno에서 노래를 만든 뒤, 🎵 Suno 파일 넣기로 mp3를 넣으세요.',pt:'Ainda sem áudio. Crie a música no Suno com o estilo e a letra abaixo e adicione o mp3.'},
+ noAudioMine:{ko:'노래 파일이 없어요. 🎵 Suno 파일 넣기로 mp3를 넣으세요.',pt:'Sem áudio. Adicione o mp3 do Suno.'},
+ tapNext:{ko:'이 줄 시작할 때 누르기',pt:'Toque quando esta linha começar'},tapDone:{ko:'박자 맞추기 완료! 이제 노래에 맞춰 가사가 따라가요.',pt:'Pronto! A letra agora acompanha a música.'},
+ needAudio:{ko:'먼저 노래 파일을 넣어 주세요.',pt:'Adicione o arquivo de áudio primeiro.'},
+ sunoStyle:{ko:'Suno에 넣을 스타일',pt:'Estilo para o Suno'},sunoLyrics:{ko:'Suno에 넣을 가사',pt:'Letra para o Suno'},copy:{ko:'복사',pt:'Copiar'},copied:{ko:'복사했어요',pt:'Copiado'},
+ builtIn:{ko:'Claude가 쓴 한글 공부 노래',pt:'Canção de estudo escrita pelo Claude'},mine:{ko:'내 노래',pt:'Minha música'},
  soundTitle:{ko:'자음과 모음 소리',pt:'Sons das consoantes e vogais'},
  soundLead:{ko:'글자를 누르면 소리가 나와요. 자음은 ㅏ를 붙여서 들려줘요.',pt:'Toque numa letra para ouvir. As consoantes são lidas com ㅏ (a).'},
  consonants:{ko:'자음',pt:'Consoantes'},dbl:{ko:'된소리 (쌍자음)',pt:'Consoantes duplas (tensas)'},
@@ -354,7 +424,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});
   $('langBtn').textContent=lang==='ko'?'PT':'한국어';
   $('langBtn').setAttribute('aria-label',lang==='ko'?'Português':'한국어');
-  renderDetail();renderChal();renderSay(false);renderQLevels();if(qState&&qState.i<qState.qs.length&&!$('qPlay').hidden)renderQ();else if(qState)endQuiz();
+  renderDetail();renderChal();renderSay(false);if(typeof renderSongList==='function'&&$('nList'))renderSongList();renderQLevels();if(qState&&qState.i<qState.qs.length&&!$('qPlay').hidden)renderQ();else if(qState)endQuiz();
 }
 
 /* ---------- 소리 (TTS) ---------- */
@@ -848,6 +918,107 @@ $('sMic').onclick=()=>{
   catch(e){showNote('micBlocked')}
 };
 function showNote(k){$('sNote').textContent=t(k);$('sNote').hidden=false}
+
+/* ---------- 6. 노래방 ---------- */
+// 한글 → 브라질식 발음 자동 변환 (연음·비음화·구개음화 기본 규칙)
+const PI={'ㄱ':'g','ㄲ':'kk','ㄴ':'n','ㄷ':'d','ㄸ':'tt','ㄹ':'r','ㅁ':'m','ㅂ':'b','ㅃ':'pp','ㅅ':'s','ㅆ':'ss','ㅇ':'','ㅈ':'dj','ㅉ':'jj','ㅊ':'tch','ㅋ':'k','ㅌ':'t','ㅍ':'p','ㅎ':'r'};
+const PF={'':'','ㄱ':'k','ㄲ':'k','ㅋ':'k','ㄳ':'k','ㄺ':'k','ㄴ':'n','ㄵ':'n','ㄶ':'n','ㄷ':'t','ㅅ':'t','ㅆ':'t','ㅈ':'t','ㅊ':'t','ㅌ':'t','ㅎ':'t','ㄹ':'l','ㄼ':'l','ㄽ':'l','ㄾ':'l','ㅀ':'l','ㅁ':'m','ㄻ':'m','ㅂ':'p','ㅍ':'p','ㅄ':'p','ㄿ':'p','ㅇ':'ng'};
+const LINK={'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅄ':['ㅂ','ㅅ'],'ㄶ':['','ㄴ'],'ㅀ':['','ㄹ']};
+function autoPron(text){
+  return text.split(/\s+/).filter(Boolean).map(word=>{
+    const ch=[...word].map(c=>{const d=decompose(c);return d?{c:d[0],v:d[1],f:d[2]}:{raw:c}});
+    for(let i=0;i<ch.length-1;i++){const a=ch[i],b=ch[i+1];if(a.raw||b.raw||!a.f)continue;
+      if(b.c==='ㅇ'){
+        if(a.f==='ㅇ')continue;
+        if(a.f==='ㅎ'){a.f='';continue}
+        if(b.v==='ㅣ'&&(a.f==='ㄷ'||a.f==='ㅌ')){b.c=a.f==='ㄷ'?'ㅈ':'ㅊ';a.f='';continue}
+        if(LINK[a.f]){b.c=LINK[a.f][1];a.f=LINK[a.f][0]}else{b.c=a.f;a.f=''}
+      }else if(b.c==='ㄴ'||b.c==='ㅁ'){const p=PF[a.f];if(p==='p')a.f='ㅁ';else if(p==='k')a.f='ㅇ';else if(p==='t')a.f='ㄴ'}
+    }
+    return ch.map(x=>{if(x.raw)return x.raw.replace(/[^0-9A-Za-z]/g,'');let a=PI[x.c],v=PT_V[x.v].replace('ü','u');if(a==='g'&&/^[eéêi]/.test(v))a='gu';return a+v+PF[x.f]}).filter(Boolean).join('-');
+  }).join(' ');
+}
+const pronOf=ko=>PRON[ko]||autoPron(ko);
+
+// 저장소 (이 휴대폰 안에만 저장)
+const idb=(()=>{let dbp=null;
+  function open(){if(!dbp)dbp=new Promise((res,rej)=>{try{const q=indexedDB.open('hangul-songs',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)}catch(e){rej(e)}});return dbp}
+  async function tx(mode,fn){const db=await open();return new Promise((res,rej)=>{const t=db.transaction('kv',mode),q=fn(t.objectStore('kv'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})}
+  return{get:k=>tx('readonly',st=>st.get(k)).catch(()=>null),set:(k,v)=>tx('readwrite',st=>st.put(v,k)).catch(()=>null),del:k=>tx('readwrite',st=>st.delete(k)).catch(()=>null)};
+})();
+
+const BUILTIN=[
+ {id:'b1',title:'가나다라 노래',pt:'Canção do Ga-Na-Da-Ra',style:'cheerful children\'s K-pop, bright piano and hand claps, female vocal, simple melody, 110 bpm, Korean lyrics',lines:[
+  ['가나다라 마바사','Ga, na, da, ra, ma, ba, sa'],['아자차카 타파하','A, dja, tcha, ka, ta, pa, ha'],['한글은 정말 쉬워요','O Hangul é muito fácil'],['같이 불러요 랄랄라','Vamos cantar juntos, lalalá'],
+  ['아야어여 오요우유','A, ia, ó, ió, ô, iô, u, iu'],['으이 하고 웃어요','Diga "ü-i" e sorria'],['소리 내어 읽어 봐요','Tente ler em voz alta'],['오늘도 한 글자씩','Hoje também, uma letra de cada vez']]},
+ {id:'b2',title:'인사 노래',pt:'Canção dos cumprimentos',style:'upbeat K-pop, catchy chorus, synth pop, male and female duet, 120 bpm, Korean lyrics',lines:[
+  ['안녕하세요 반가워요','Olá, prazer em te ver'],['고마워요 감사합니다','Obrigado, muito obrigado'],['미안해요 괜찮아요','Desculpa — tudo bem'],['안녕히 가세요 또 만나요','Tchau, até a próxima'],
+  ['아침에는 좋은 아침','De manhã, bom dia'],['밤에는 잘 자요','À noite, durma bem'],['언제나 웃으면서','Sempre sorrindo'],['인사해요 우리 함께','Vamos cumprimentar juntos']]},
+ {id:'b3',title:'상파울루에서 한글을',pt:'Hangul em São Paulo',style:'Korean ballad meets bossa nova, acoustic nylon guitar, soft percussion, warm female vocal, 95 bpm, Korean lyrics',lines:[
+  ['상파울루 하늘 아래','Sob o céu de São Paulo'],['봉헤치로 골목에서','Nas ruas do Bom Retiro'],['한글로 인사해요','Cumprimento em coreano'],['안녕 브라질 사랑해요','Oi, Brasil, eu te amo'],
+  ['커피 한 잔 주세요','Um café, por favor'],['맛있어요 고마워요','Está gostoso, obrigado'],['두 나라 말로 노래해요','Canto em duas línguas'],['우리 함께 화이팅','Juntos, força!']]}
+];
+let mySongs=[],curSong=null,audioURL=null,times=null,tapIdx=-1,lastOn=-1;
+async function loadMine(){mySongs=(await idb.get('mysongs'))||[];renderSongList()}
+function renderSongList(){
+  const all=[...BUILTIN.map(x=>({...x,mine:false})),...mySongs.map(x=>({...x,mine:true}))];
+  $('nList').innerHTML='';
+  all.forEach(sg=>{const b=document.createElement('button');b.className='scard'+(sg.mine?' mine':'');
+    b.innerHTML=`<span class="disc" aria-hidden="true">♪</span><span style="min-width:0"><b></b><small></small></span>`;
+    b.querySelector('b').textContent=sg.title;b.querySelector('small').textContent=(sg.pt?sg.pt+' · ':'')+(sg.mine?t('mine'):t('builtIn'));
+    b.onclick=()=>openSong(sg);$('nList').appendChild(b)});
+}
+async function openSong(sg){
+  curSong=sg;$('nHome').hidden=true;$('nView').hidden=false;$('vConfirm').hidden=true;window.scrollTo(0,0);
+  $('vTitle').textContent=sg.title;$('vSub').textContent=sg.pt||'';$('vDel').hidden=!sg.mine;
+  $('vLyrics').innerHTML='';
+  sg.lines.forEach((ln,i)=>{const li=document.createElement('li');li.innerHTML='<b></b><span class="pron"></span><small></small>';
+    li.querySelector('b').textContent=ln[0];li.querySelector('.pron').textContent=pronOf(ln[0]);li.querySelector('small').textContent=ln[1]||'';
+    li.onclick=()=>{if(times&&!$('vAudio').hidden&&tapIdx<0){$('vAudio').currentTime=times[i];$('vAudio').play().catch(()=>{})}else speak(ln[0])};
+    $('vLyrics').appendChild(li)});
+  if(sg.style){const all=sg.lines.map(l=>l[0]).join('\n');
+    $('vStyle').innerHTML=`<div class="label" style="margin-top:0">${t('sunoStyle')}</div><div class="copybox" id="cpS"></div><button class="btn" data-cp="cpS">${t('copy')}</button>
+      <div class="label">${t('sunoLyrics')}</div><div class="copybox" id="cpL" style="white-space:pre-line"></div><button class="btn" data-cp="cpL">${t('copy')}</button>`;
+    $('cpS').textContent=sg.style;$('cpL').textContent=all;$('vStyle').hidden=false;
+    $('vStyle').querySelectorAll('[data-cp]').forEach(bt=>bt.onclick=()=>{const txt=$(bt.dataset.cp).textContent;
+      const ok=()=>{bt.textContent=t('copied');setTimeout(()=>bt.textContent=t('copy'),1500)};
+      try{navigator.clipboard.writeText(txt).then(ok,()=>selectEl($(bt.dataset.cp)))}catch(e){selectEl($(bt.dataset.cp))}});
+  }else $('vStyle').hidden=true;
+  const blob=await idb.get('audio:'+sg.id);times=await idb.get('time:'+sg.id);setAudio(blob);
+}
+function selectEl(el){const rg=document.createRange();rg.selectNodeContents(el);const sl=getSelection();sl.removeAllRanges();sl.addRange(rg)}
+function setAudio(blob){
+  const a=$('vAudio');if(audioURL){URL.revokeObjectURL(audioURL);audioURL=null}
+  if(blob){audioURL=URL.createObjectURL(blob);a.src=audioURL;a.hidden=false;$('vNoAudio').hidden=true}
+  else{a.removeAttribute('src');a.hidden=true;$('vNoAudio').hidden=false;$('vNoAudio').textContent=t(curSong&&curSong.mine?'noAudioMine':'noAudio')}
+  lastOn=-1;markLine(-1);
+}
+function markLine(i){[...$('vLyrics').children].forEach((li,k)=>li.classList.toggle('on',k===i));
+  if(i>=0&&i!==lastOn){const li=$('vLyrics').children[i];li&&li.scrollIntoView({behavior:'smooth',block:'center'})}lastOn=i}
+$('vAudio').addEventListener('timeupdate',()=>{if(!times||tapIdx>=0)return;const tt=$('vAudio').currentTime;let i=-1;times.forEach((v,k)=>{if(tt>=v)i=k});if(i!==lastOn)markLine(i)});
+$('vFile').onchange=async e=>{const f=e.target.files[0];if(!f||!curSong)return;await idb.set('audio:'+curSong.id,f);setAudio(f);e.target.value=''};
+$('vTimeBtn').onclick=()=>{if($('vAudio').hidden){$('vNoAudio').hidden=false;$('vNoAudio').textContent=t('needAudio');return}
+  tapIdx=0;times=[];const a=$('vAudio');a.currentTime=0;a.play().catch(()=>{});$('vTap').hidden=false;updTap();markLine(0)};
+function updTap(){$('vTapNext').textContent=`${t('tapNext')} (${tapIdx+1}/${curSong.lines.length})`}
+$('vTapNext').onclick=async()=>{times[tapIdx]=$('vAudio').currentTime;tapIdx++;
+  if(tapIdx>=curSong.lines.length){tapIdx=-1;$('vTap').hidden=true;await idb.set('time:'+curSong.id,times);$('vNoAudio').hidden=false;$('vNoAudio').textContent=t('tapDone');return}
+  updTap();markLine(tapIdx)};
+$('vTapStop').onclick=async()=>{tapIdx=-1;$('vTap').hidden=true;times=await idb.get('time:'+curSong.id);$('vAudio').pause()};
+$('nBack').onclick=()=>{$('vAudio').pause();tapIdx=-1;$('vTap').hidden=true;$('nView').hidden=true;$('nHome').hidden=false;curSong=null};
+$('vDel').onclick=()=>{$('vConfirm').hidden=false};
+$('vDelNo').onclick=()=>{$('vConfirm').hidden=true};
+$('vDelYes').onclick=async()=>{mySongs=mySongs.filter(x=>x.id!==curSong.id);await idb.set('mysongs',mySongs);await idb.del('audio:'+curSong.id);await idb.del('time:'+curSong.id);$('nBack').onclick();renderSongList()};
+$('nAddBtn').onclick=()=>{$('nForm').hidden=false;$('nAddBtn').hidden=true;$('fTitle').focus()};
+$('fCancel').onclick=()=>{$('nForm').hidden=true;$('nAddBtn').hidden=false};
+$('nForm').addEventListener('submit',async e=>{e.preventDefault();
+  const lines=$('fLyrics').value.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>{const p=x.split('|');return[p[0].trim(),(p[1]||'').trim()]});
+  if(!lines.length)return;
+  const sg={id:'m'+Date.now(),title:$('fTitle').value.trim()||'Suno',pt:'',lines};
+  mySongs.push(sg);await idb.set('mysongs',mySongs);
+  const f=$('fAudio').files[0];if(f)await idb.set('audio:'+sg.id,f);
+  $('nForm').reset();$('nForm').hidden=true;$('nAddBtn').hidden=false;renderSongList();openSong({...sg,mine:true});
+});
+loadMine();
 
 /* ---------- 시작 ---------- */
 $('langBtn').onclick=()=>{lang=lang==='ko'?'pt':'ko';store.set('hg-lang',lang);applyLang()};
