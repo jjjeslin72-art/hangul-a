@@ -88,7 +88,10 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .result{display:flex;justify-content:center;margin:8px 0}
 .result .cell{width:150px;height:150px;font-size:104px;cursor:pointer}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);background:var(--sheet);border-radius:8px;min-width:42px;padding:6px 8px;font-family:var(--f-glyph);font-size:20px;line-height:1.2}
+.chip{border:1px solid var(--line);background:var(--sheet);border-radius:8px;min-width:46px;padding:5px 6px;font-family:var(--f-glyph);font-size:20px;line-height:1.2;display:flex;flex-direction:column;align-items:center}
+.chip small{font-family:var(--f-body);font-size:12px;font-weight:700;color:var(--seal);line-height:1.2}
+.chip[aria-pressed="true"] small{color:var(--sheet)}
+.opt small{display:block;font-family:var(--f-body);font-size:13px;font-weight:700;color:var(--seal);margin-top:2px}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
 .challenge{background:var(--accent-soft);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
 .challenge .tgt{font-family:var(--f-glyph);font-size:40px;font-weight:700;line-height:1}
@@ -514,17 +517,17 @@ $('jdWrite').onclick=()=>{const j=JAMO[cur];wSet=j.type==='c'?'c':'v';wIdx=Math.
 /* ---------- 2. 조합 ---------- */
 let bC='ㄱ',bV='ㅏ',bJ='',chal=null;
 const BJ=['','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅎ'];
-function chips(id,list,get,set){
+function chips(id,list,get,set,rd){
   const box=$(id);box.innerHTML='';
-  list.forEach(x=>{const b=document.createElement('button');b.className='chip';b.textContent=x||'✕';
+  list.forEach(x=>{const b=document.createElement('button');b.className='chip';b.innerHTML=`<span>${x||'✕'}</span>${x&&rd&&rd(x)?`<small>${rd(x)}</small>`:''}`;
     b.setAttribute('aria-label',x||(lang==='ko'?'받침 없음':'sem final'));
     b.addEventListener('click',()=>{set(x);paint();renderBuild()});box.appendChild(b)});
   function paint(){[...box.children].forEach((b,i)=>b.setAttribute('aria-pressed',list[i]===get()))}
   paint();return paint;
 }
-const pC=chips('cC',CHO,()=>bC,x=>bC=x),pV=chips('cV',JUNG,()=>bV,x=>bV=x),pJ=chips('cJ',BJ,()=>bJ,x=>bJ=x);
-const ROM_C={'ㄱ':'g','ㄲ':'kk','ㄴ':'n','ㄷ':'d','ㄸ':'tt','ㄹ':'r','ㅁ':'m','ㅂ':'b','ㅃ':'pp','ㅅ':'s','ㅆ':'ss','ㅇ':'','ㅈ':'j','ㅉ':'jj','ㅊ':'ch','ㅋ':'k','ㅌ':'t','ㅍ':'p','ㅎ':'h'};
 const ROM_J={'':'','ㄱ':'k','ㄴ':'n','ㄷ':'t','ㄹ':'l','ㅁ':'m','ㅂ':'p','ㅅ':'t','ㅇ':'ng','ㅈ':'t','ㅊ':'t','ㅎ':'t'};
+const pC=chips('cC',CHO,()=>bC,x=>bC=x,x=>PT_C[x]||'—'),pV=chips('cV',JUNG,()=>bV,x=>bV=x,x=>PT_V[x]),pJ=chips('cJ',BJ,()=>bJ,x=>bJ=x,x=>ROM_J[x]);
+const ROM_C={'ㄱ':'g','ㄲ':'kk','ㄴ':'n','ㄷ':'d','ㄸ':'tt','ㄹ':'r','ㅁ':'m','ㅂ':'b','ㅃ':'pp','ㅅ':'s','ㅆ':'ss','ㅇ':'','ㅈ':'j','ㅉ':'jj','ㅊ':'ch','ㅋ':'k','ㅌ':'t','ㅍ':'p','ㅎ':'h'};
 function renderBuild(){
   const s=compose(bC,bV,bJ);
   $('fC').textContent=bC;$('fV').textContent=bV;$('fJ').textContent=bJ||'·';$('bResT').textContent=s;
@@ -636,12 +639,12 @@ function renderQ(){
     if(!s.answered)setTimeout(()=>speak(q.w[0]),250);
   }
   $('qOpts').innerHTML='';
-  q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o[0];b.style.wordBreak='keep-all';if(o[0].length>5)b.style.fontSize='18px';b.onclick=()=>answer(o,b);$('qOpts').appendChild(b)});
+  q.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.dataset.k=o[0];b.innerHTML=o[0]+(PRON[o[0]]?`<small>${PRON[o[0]]}</small>`:'');b.style.wordBreak='keep-all';if(o[0].length>5)b.style.fontSize='18px';b.onclick=()=>answer(o,b);$('qOpts').appendChild(b)});
 }
 function answer(o,btn){
   const s=qState,q=s.qs[s.i];if(s.answered)return;s.answered=true;
   const ok=o===q.w;if(ok)s.score++;
-  [...$('qOpts').children].forEach(b=>{if(b.textContent===q.w[0])b.classList.add('ok')});
+  [...$('qOpts').children].forEach(b=>{if(b.dataset.k===q.w[0])b.classList.add('ok')});
   if(!ok)btn.classList.add('no');
   $('qScore').textContent=`★ ${s.score}`;speak(q.w[0]);
   setTimeout(()=>{s.i++;s.answered=false;if(s.i>=s.qs.length)endQuiz();else renderQ()},1300);
