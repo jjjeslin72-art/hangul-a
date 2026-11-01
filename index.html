@@ -73,6 +73,14 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .jamo i{font-style:normal;font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
 .jamo[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 
+.chart-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--sheet)}
+.gchart{border-collapse:collapse;font-variant-numeric:tabular-nums}
+.gchart th{font-family:var(--f-glyph);font-weight:700;color:var(--accent);background:var(--accent-soft);padding:6px 8px;position:sticky;left:0}
+.gchart thead th{position:static}
+.gchart td{border:1px solid var(--line);padding:0}
+.gchart td button{border:0;background:none;width:56px;padding:6px 2px;text-align:center}
+.gchart td b{display:block;font-family:var(--f-glyph);font-size:20px;font-weight:500;line-height:1.2}
+.gchart td i{font-style:normal;font-size:12px;color:var(--seal);font-weight:700}
 /* builder */
 .formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
 .formula .op{color:var(--muted);font-size:20px}
@@ -175,6 +183,8 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <div class="grid" id="gVow"></div>
   <div class="label" data-t="vowels2"></div>
   <div class="grid" id="gVow2"></div>
+  <div class="label" data-t="chart"></div>
+  <div class="chart-wrap"><table class="gchart" id="gChart"></table></div>
 </section>
 
 <!-- 2. 조합 -->
@@ -281,6 +291,7 @@ const T={
  sub:{ko:'자음·모음부터 말하기까지',pt:'Aprenda o alfabeto coreano'},
  slow:{ko:'천천히',pt:'Devagar'},
  tSound:{ko:'소리',pt:'Sons'},tBuild:{ko:'조합',pt:'Montar'},tWrite:{ko:'쓰기',pt:'Escrever'},tQuiz:{ko:'퀴즈',pt:'Quiz'},tSay:{ko:'말하기',pt:'Falar'},
+ chart:{ko:'가나다라 표 (누르면 소리 나요)',pt:'Tabela Ga-Na-Da-Ra (toque para ouvir)'},
  soundTitle:{ko:'자음과 모음 소리',pt:'Sons das consoantes e vogais'},
  soundLead:{ko:'글자를 누르면 소리가 나와요. 자음은 ㅏ를 붙여서 들려줘요.',pt:'Toque numa letra para ouvir. As consoantes são lidas com ㅏ (a).'},
  consonants:{ko:'자음',pt:'Consoantes'},dbl:{ko:'된소리 (쌍자음)',pt:'Consoantes duplas (tensas)'},
@@ -400,6 +411,10 @@ const VOW2=[
  ['ㅞ','웨','we','"우"+"에"를 빨리','Como "uê"'],
  ['ㅟ','위','wi','"우"+"이"를 빨리','Como "uí"'],
  ['ㅢ','의','ui','"으"+"이"를 빨리','"ɯ" + "i" rápido (ㅡ seguido de ㅣ)']];
+// 가나다라 읽는 법 (브라질식): Ga Na Da Ra …
+const PT_C={'ㄱ':'g','ㄲ':'kk','ㄴ':'n','ㄷ':'d','ㄸ':'tt','ㄹ':'r','ㅁ':'m','ㅂ':'b','ㅃ':'pp','ㅅ':'s','ㅆ':'ss','ㅇ':'','ㅈ':'dj','ㅉ':'jj','ㅊ':'tch','ㅋ':'k','ㅌ':'t','ㅍ':'p','ㅎ':'h'};
+const PT_V={'ㅏ':'a','ㅐ':'é','ㅑ':'ia','ㅒ':'ié','ㅓ':'ó','ㅔ':'ê','ㅕ':'ió','ㅖ':'iê','ㅗ':'ô','ㅘ':'uá','ㅙ':'ué','ㅚ':'uê','ㅛ':'iô','ㅜ':'u','ㅝ':'uó','ㅞ':'uê','ㅟ':'uí','ㅠ':'iu','ㅡ':'ü','ㅢ':'üi','ㅣ':'i'};
+function ptRead(c,v){let a=PT_C[c],b=PT_V[v];if(a==='g'&&/^[eéêi]/.test(b))a='gu';const s=a+b;return s.charAt(0).toUpperCase()+s.slice(1)}
 const JAMO={};[...CONS,...DBL].forEach(a=>JAMO[a[0]]={g:a[0],name:a[1],rom:a[2],ko:a[3],pt:a[4],ex:a[5],type:'c'});
 [...VOW,...VOW2].forEach(a=>JAMO[a[0]]={g:a[0],name:a[1],rom:a[2],ko:a[3],pt:a[4],type:'v'});
 
@@ -471,14 +486,23 @@ let cur='ㄱ';
 function soundOf(g){const j=JAMO[g];return j.type==='c'?compose(g,'ㅏ'):compose('ㅇ',g)}
 function fillGrid(id,list){
   $(id).innerHTML='';
-  list.forEach(a=>{const b=document.createElement('button');b.className='jamo';b.innerHTML=`<b>${a[0]}</b><i>${a[2]}</i>`;
+  list.forEach(a=>{const b=document.createElement('button');b.className='jamo';
+    const isC=!!PT_C.hasOwnProperty(a[0]),syl=isC?compose(a[0],'ㅏ'):compose('ㅇ',a[0]),rd=isC?ptRead(a[0],'ㅏ'):ptRead('ㅇ',a[0]);
+    b.innerHTML=`<b>${a[0]}</b><i>${syl} ${rd}</i>`;
     b.dataset.g=a[0];b.addEventListener('click',()=>{cur=a[0];renderDetail();speak(soundOf(cur))});$(id).appendChild(b)});
 }
 fillGrid('gCons',CONS);fillGrid('gDbl',DBL);fillGrid('gVow',VOW);fillGrid('gVow2',VOW2);
+(function chart(){
+  const V=VOW.map(a=>a[0]),C=CONS.map(a=>a[0]);
+  let h='<thead><tr><th></th>'+V.map(v=>`<th>${v}</th>`).join('')+'</tr></thead><tbody>';
+  C.forEach(c=>{h+=`<tr><th>${c}</th>`+V.map(v=>{const s=compose(c,v);return`<td><button data-s="${s}"><b>${s}</b><i>${ptRead(c,v)}</i></button></td>`}).join('')+'</tr>'});
+  $('gChart').innerHTML=h+'</tbody>';
+  $('gChart').addEventListener('click',e=>{const b=e.target.closest('button');if(b)speak(b.dataset.s)});
+})();
 function renderDetail(){
   const j=JAMO[cur];
   $('jdGlyph').textContent=j.g;$('jdName').textContent=j.name+(j.type==='c'?'  ·  '+soundOf(j.g):'');
-  $('jdRom').textContent=j.rom;
+  $('jdRom').textContent=(j.type==='c'?ptRead(j.g,'ㅏ'):ptRead('ㅇ',j.g))+'   ('+j.rom+')';
   $('jdHint').textContent=(lang==='ko'?j.ko:j.pt)+(j.ex?(lang==='ko'?'  예: ':'  Ex.: ')+j.ex:'');
   $('jdName2').hidden=j.type!=='c';
   document.querySelectorAll('.jamo').forEach(b=>b.setAttribute('aria-current',b.dataset.g===cur));
@@ -504,7 +528,7 @@ const ROM_J={'':'','ㄱ':'k','ㄴ':'n','ㄷ':'t','ㄹ':'l','ㅁ':'m','ㅂ':'p','
 function renderBuild(){
   const s=compose(bC,bV,bJ);
   $('fC').textContent=bC;$('fV').textContent=bV;$('fJ').textContent=bJ||'·';$('bResT').textContent=s;
-  $('bRom').textContent=ROM_C[bC]+JAMO[bV].rom+ROM_J[bJ];
+  $('bRom').textContent=ptRead(bC,bV)+ROM_J[bJ];
   speak(s);
   if(chal&&s===chal&&!chal.done){chal={done:true,s:chal};}
   renderChal();
@@ -708,7 +732,7 @@ $('langBtn').onclick=()=>{lang=lang==='ko'?'pt':'ko';store.set('hg-lang',lang);a
 $('slowBtn').setAttribute('aria-pressed',slow);
 $('slowBtn').onclick=()=>{slow=!slow;store.set('hg-slow',slow);$('slowBtn').setAttribute('aria-pressed',slow)};
 // 첫 화면에서는 소리 없이 그리기
-(function initBuild(){const s=compose(bC,bV,bJ);$('fC').textContent=bC;$('fV').textContent=bV;$('fJ').textContent='·';$('bResT').textContent=s;$('bRom').textContent='ga'})();
+(function initBuild(){const s=compose(bC,bV,bJ);$('fC').textContent=bC;$('fV').textContent=bV;$('fJ').textContent='·';$('bResT').textContent=s;$('bRom').textContent='Ga'})();
 applyLang();
 setTimeout(()=>{if('speechSynthesis' in window&&speechSynthesis.getVoices().length&&!koVoice){const n=document.createElement('div');n.className='note';n.textContent=t('noVoice');$('p-sound').insertBefore(n,$('jDetail'))}},1500);
 })();
