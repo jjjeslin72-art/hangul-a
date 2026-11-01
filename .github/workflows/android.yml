@@ -15,21 +15,20 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: 비밀번호 확인
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: |
-          if [ -z "$KEYSTORE_PASSWORD" ]; then echo "::error::KEYSTORE_PASSWORD 비밀값이 없어요. Settings > Secrets and variables > Actions 에서 추가하세요."; exit 1; fi
       - name: AAB / APK 만들기
         working-directory: android
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           VERSION_CODE: ${{ github.run_number }}
         run: gradle :app:bundleRelease :app:assembleRelease --no-daemon --stacktrace
+      - name: 비밀번호 확인
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_PASSWORD" ]; then echo "::error::KEYSTORE_PASSWORD 비밀값이 없어요. Settings > Secrets and variables > Actions 에서 추가하세요."; exit 1; fi
       - name: 파일 이름 정리
         run: |
           mkdir out
