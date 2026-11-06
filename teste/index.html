@@ -25,6 +25,11 @@ h1{font-size:24px;line-height:1.2;margin:0}
 .btn:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
 .note{margin-top:16px;background:#FFF4E5;border-radius:12px;padding:14px;font-size:15px}
 .note b{color:var(--red)}
+.step.now{border:3px solid var(--red);box-shadow:0 0 0 4px #F7D4CF}
+.step.done{opacity:.55}
+.step.done h2::after{content:" ✅";margin-left:6px}
+.back{display:none;margin:0 0 10px;font-weight:700;color:var(--red)}
+.step.now .back{display:block}
 .foot{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}
 </style>
 </head>
@@ -40,23 +45,25 @@ h1{font-size:24px;line-height:1.2;margin:0}
 
   <div class="tip">🌐 <b>Abra esta página no Chrome</b> (toque em <b>⋯</b> no canto e escolha <b>"Abrir no navegador"</b>) e entre com sua conta Google.</div>
 
-  <div class="step">
+  <div class="step" id="s1">
     <h2><span class="num">1</span>Entre no grupo</h2>
     <p>Toque no botão, faça login com seu Gmail e toque em <b>"Participar do grupo"</b>.</p>
     <p style="background:#FFF4E5;border-radius:10px;padding:10px;margin-top:-4px">⚠️ Não aparece o botão "Participar do grupo"? No Chrome, toque em <b>⋮</b> (canto de cima) e marque <b>"Site para computador"</b>. O botão aparece em cima, à direita.</p>
-    <a class="btn" href="https://groups.google.com/g/hangulk-testers" target="_blank" rel="noopener">Entrar no grupo</a>
+    <a class="btn" data-next="2" href="https://groups.google.com/g/hangulk-testers" target="_blank" rel="noopener">Entrar no grupo</a>
   </div>
 
-  <div class="step">
+  <div class="step" id="s2">
     <h2><span class="num">2</span>Vire testador</h2>
+    <p class="back">👉 Entrou no grupo? Agora toque aqui!</p>
     <p>Toque no botão e depois em <b>"Tornar-se testador"</b>.</p>
-    <a class="btn" href="https://play.google.com/apps/testing/com.hangulk.app" target="_blank" rel="noopener">Virar testador</a>
+    <a class="btn" data-next="3" href="https://play.google.com/apps/testing/com.hangulk.app" target="_blank" rel="noopener">Virar testador</a>
   </div>
 
-  <div class="step">
+  <div class="step" id="s3">
     <h2><span class="num">3</span>Baixe o app</h2>
+    <p class="back">👉 Já é testador? Agora toque aqui!</p>
     <p>Toque no botão e depois em <b>"Instalar"</b>.</p>
-    <a class="btn" href="https://play.google.com/store/apps/details?id=com.hangulk.app" target="_blank" rel="noopener">Baixar na Play Store</a>
+    <a class="btn" data-next="4" href="https://play.google.com/store/apps/details?id=com.hangulk.app" target="_blank" rel="noopener">Baixar na Play Store</a>
   </div>
 
   <div class="note">
@@ -66,5 +73,22 @@ h1{font-size:24px;line-height:1.2;margin:0}
 
   <p class="foot">Obrigada pela ajuda! 💕 – Juya</p>
 </div>
+<script>
+(function(){
+  var k='hk-step',step=1;
+  try{step=parseInt(localStorage.getItem(k)||'1',10)||1}catch(e){}
+  function paint(scroll){
+    for(var i=1;i<=3;i++){var el=document.getElementById('s'+i);if(!el)continue;
+      el.classList.toggle('done',i<step);el.classList.toggle('now',i===step&&step>1);}
+    if(scroll&&step>1&&step<=3){var n=document.getElementById('s'+step);n&&n.scrollIntoView({behavior:'smooth',block:'center'});}
+  }
+  document.querySelectorAll('a[data-next]').forEach(function(a){
+    a.addEventListener('click',function(){var n=parseInt(a.dataset.next,10);if(n>step){step=n;try{localStorage.setItem(k,step)}catch(e){}}});
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)paint(true)});
+  window.addEventListener('pageshow',function(){paint(true)});
+  paint(false);
+})();
+</script>
 </body>
 </html>
