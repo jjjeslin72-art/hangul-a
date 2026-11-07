@@ -118,6 +118,13 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .tapbar #vTapNext{flex:1;max-width:360px}
 .copybox{font-size:13px;background:var(--paper);border-radius:8px;padding:8px;margin:6px 0;word-break:break-word}
 @media (prefers-reduced-motion:reduce){.lyrics li{transition:none}}
+.parts{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin:6px 0 2px;min-height:44px}
+.part{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:6px 10px;text-align:center;line-height:1.2}
+.part b{display:block;font-family:var(--f-glyph);font-size:20px;font-weight:500}
+.part small{display:block;font-size:11px;color:var(--muted)}
+.part.on{border-color:var(--seal);background:var(--bad-soft)}
+.part.on b{color:var(--seal)}
+.parts .arr{color:var(--muted)}
 /* builder */
 .formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
 .formula .op{color:var(--muted);font-size:20px}
@@ -256,6 +263,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <div class="pad-wrap"><div class="pad" id="pad"><canvas id="guide"></canvas><canvas id="ink"></canvas></div></div>
   <div class="stars" id="wStars" aria-live="polite"></div>
   <div class="msg" id="wMsg"></div>
+  <div class="parts" id="wParts" aria-live="polite"></div>
   <div class="navrow" style="margin-top:8px">
     <button class="btn" id="wPrev" aria-label="이전">◀</button>
     <div class="row">
@@ -649,7 +657,7 @@ function go(name){
   tab=name;
   document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===name));
   document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='p-'+name);
-  if(name==='write')requestAnimationFrame(sizePad);
+  if(name==='write'){requestAnimationFrame(sizePad);renderParts(partsOf(writeList()[wIdx]),-1)}
   if(name==='quiz'&&!qState)startQuiz();
   window.scrollTo(0,0);
 }
@@ -746,7 +754,7 @@ function paintGuide(){
   gx.clearRect(0,0,padPx,padPx);
   if($('wGuide').checked)drawGlyph(gx,padPx,writeList()[wIdx],{fill:cssVar('--line')});
 }
-function loadW(){ix.clearRect(0,0,padPx,padPx);drawn=false;$('wStars').textContent='';$('wMsg').textContent='';sizePad()}
+function loadW(){ix.clearRect(0,0,padPx,padPx);drawn=false;$('wStars').textContent='';$('wMsg').textContent='';seqId++;if($('wParts'))renderParts(partsOf(writeList()[wIdx]),-1);sizePad()}
 let down=false,last=null;
 function pt(e){const r=ink.getBoundingClientRect();return[(e.clientX-r.left)/r.width*padPx,(e.clientY-r.top)/r.height*padPx]}
 ink.addEventListener('pointerdown',e=>{down=true;ink.setPointerCapture(e.pointerId);last=pt(e);dot(last)});
@@ -776,7 +784,37 @@ $('wCheck').onclick=()=>{
   if(n===3)speak(writeList()[wIdx].length===1&&JAMO[writeList()[wIdx]]?soundOf(writeList()[wIdx]):writeList()[wIdx]);
 };
 $('wClear').onclick=loadW;
-$('wPlay').onclick=()=>{const g=writeList()[wIdx];speak(JAMO[g]?soundOf(g):g)};
+// 자음·모음·합친 소리를 따로따로 차례대로 들려주기
+const CSOUND={'ㄱ':'그','ㄲ':'끄','ㄴ':'느','ㄷ':'드','ㄸ':'뜨','ㄹ':'르','ㅁ':'므','ㅂ':'브','ㅃ':'쁘','ㅅ':'스','ㅆ':'쓰','ㅇ':'응','ㅈ':'즈','ㅉ':'쯔','ㅊ':'츠','ㅋ':'크','ㅌ':'트','ㅍ':'프','ㅎ':'흐'};
+const LBL={name:{ko:'이름',pt:'nome'},snd:{ko:'자음 소리',pt:'som'},vow:{ko:'모음 소리',pt:'vogal'},fin:{ko:'받침',pt:'final'},all:{ko:'합친 소리',pt:'junto'}};
+function partsOf(g){
+  const L=k=>LBL[k][lang];
+  if(JAMO[g]&&JAMO[g].type==='c') return [{t:g,say:JAMO[g].name,lb:L('name')},{t:CSOUND[g],say:CSOUND[g],lb:L('snd')},{t:'+ ㅏ',say:'아',lb:L('vow')},{t:compose(g,'ㅏ'),say:compose(g,'ㅏ'),lb:L('all')}];
+  if(JAMO[g]) return [{t:g,say:compose('ㅇ',g),lb:L('vow')},{t:'ㄱ',say:'그',lb:L('snd')},{t:compose('ㄱ',g),say:compose('ㄱ',g),lb:L('all')}];
+  const d=decompose(g);if(!d)return[{t:g,say:g,lb:L('all')}];
+  const out=[{t:d[0],say:CSOUND[d[0]]||d[0],lb:L('snd')},{t:d[1],say:compose('ㅇ',d[1]),lb:L('vow')}];
+  if(d[2])out.push({t:d[2],say:JAMO[d[2]]?JAMO[d[2]].name:d[2],lb:L('fin')});
+  out.push({t:g,say:g,lb:L('all')});return out;
+}
+let seqId=0;
+function sayOnce(txt){return new Promise(res=>{
+  if(!('speechSynthesis' in window)){ttsWarn();return res()}
+  try{const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';if(koVoice)u.voice=koVoice;u.rate=slow?0.5:0.7;
+    let done=false;const fin=()=>{if(!done){done=true;res()}};u.onend=fin;u.onerror=fin;setTimeout(fin,3500);
+    speechSynthesis.resume();speechSynthesis.speak(u);}catch(e){res()}
+})}
+function renderParts(list,on){
+  $('wParts').innerHTML=list.map((p,i)=>(i?'<span class="arr">→</span>':'')+`<button class="part${i===on?' on':''}" data-i="${i}"><b>${p.t}</b><small>${p.lb}</small></button>`).join('');
+  $('wParts').querySelectorAll('.part').forEach(b=>b.onclick=()=>{seqId++;speechSynthesis.cancel();renderParts(list,+b.dataset.i);speak(list[+b.dataset.i].say)});
+}
+async function playParts(){
+  const g=writeList()[wIdx],list=partsOf(g),id=++seqId;
+  try{speechSynthesis.cancel()}catch(e){}
+  await new Promise(r=>setTimeout(r,80));
+  for(let i=0;i<list.length;i++){if(id!==seqId)return;renderParts(list,i);await sayOnce(list[i].say);await new Promise(r=>setTimeout(r,350))}
+  if(id===seqId)renderParts(list,-1);
+}
+$('wPlay').onclick=playParts;
 $('wPrev').onclick=()=>{const L=writeList();wIdx=(wIdx-1+L.length)%L.length;loadW()};
 $('wNext').onclick=()=>{const L=writeList();wIdx=(wIdx+1)%L.length;loadW()};
 $('wGuide').onchange=paintGuide;
