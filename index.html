@@ -43,7 +43,7 @@ h2{font-family:var(--f-disp);font-size:20px;margin:0 0 4px;text-wrap:balance}
 
 /* tab bar */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--sheet);border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(6,1fr);
+  display:grid;grid-template-columns:repeat(7,1fr);
   padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
 nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:10px;font-size:12px;color:var(--muted)}
 nav.tabs button b{font-family:var(--f-glyph);font-size:20px;line-height:1.2;font-weight:700}
@@ -125,6 +125,40 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .part.on{border-color:var(--seal);background:var(--bad-soft)}
 .part.on b{color:var(--seal)}
 .parts .arr{color:var(--muted)}
+.lv.full{grid-column:1/-1}
+.lv.locked{border-style:dashed;opacity:.8}
+.me-card{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:18px}
+.rank{display:flex;align-items:center;gap:12px}
+.rank .ic{font-size:44px;line-height:1}
+.rank b{display:block;font-family:var(--f-disp);font-size:22px}
+.rank small{color:var(--muted);font-size:13px}
+.xpbar{height:10px;background:var(--line);border-radius:5px;overflow:hidden;margin:12px 0 4px}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--seal))}
+.statg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0}
+.statg div{background:var(--paper);border-radius:10px;padding:8px 4px;text-align:center}
+.statg b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.statg small{font-size:11px;color:var(--muted)}
+.fire{display:inline-block;background:var(--bad-soft);color:var(--seal);border-radius:999px;padding:4px 10px;font-weight:700;font-size:14px}
+.btn.wide{width:100%;margin-top:6px}
+.nm-row{display:flex;gap:8px}
+.nm-row input{flex:1;min-width:0;font:inherit;font-size:17px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+.nm-out{text-align:center;margin-top:14px}
+.nm-out .big{font-family:var(--f-glyph);font-size:52px;font-weight:700;line-height:1.2;word-break:keep-all}
+.nm-out .pr{color:var(--seal);font-weight:700}
+.rw{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.rw .ic{font-size:26px}
+.rw .tx{flex:1;min-width:0}
+.rw small{display:block;color:var(--muted);font-size:12px}
+.rw .st{font-size:13px;font-weight:700;white-space:nowrap}
+.rw.on .st{color:var(--good)}
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet>div{background:var(--sheet);border-radius:18px 18px 0 0;max-width:520px;width:100%;max-height:92vh;overflow:auto;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet img{display:block;width:70%;max-width:280px;margin:0 auto 10px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.sns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.sns a,.sns button{display:block;text-align:center;text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:11px 6px;background:var(--paper);color:var(--ink);font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--sheet);
+  padding:10px 16px;border-radius:12px;font-size:14px;max-width:90vw;text-align:center}
 /* builder */
 .formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
 .formula .op{color:var(--muted);font-size:20px}
@@ -200,6 +234,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <div class="seal" aria-hidden="true">한</div>
   <h1>한글 첫걸음<small data-t="sub"></small></h1>
   <div class="hdr-tools">
+    <button class="pill" id="streakChip" aria-label="streak"></button>
     <button class="pill" id="slowBtn" aria-pressed="false" data-t="slow"></button>
     <button class="pill" id="langBtn">PT</button>
   </div>
@@ -259,6 +294,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
     <button class="pill" data-set="c" aria-pressed="true" data-t="consonants"></button>
     <button class="pill" data-set="v" aria-pressed="false" data-t="vowels"></button>
     <button class="pill" data-set="s" aria-pressed="false" data-t="syll"></button>
+    <button class="pill" data-set="n" aria-pressed="false" id="wNamePill" hidden></button>
   </div>
   <div class="pad-wrap"><div class="pad" id="pad"><canvas id="guide"></canvas><canvas id="ink"></canvas></div></div>
   <div class="stars" id="wStars" aria-live="polite"></div>
@@ -283,6 +319,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <h2 data-t="quizTitle"></h2>
   <p class="lead" data-t="quizLead"></p>
   <div class="levels" id="qLevels"></div>
+  <button class="btn wide" id="qWrongBtn" hidden style="margin:-6px 0 14px"></button>
   <div id="qPlay">
     <div class="q-top"><span id="qNum"></span><span id="qScore"></span></div>
     <div class="bar"><i id="qBar" style="width:0"></i></div>
@@ -357,7 +394,11 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
     <div class="tapbar" id="vTap" hidden><button class="btn primary big" id="vTapNext"></button><button class="btn" id="vTapStop" data-t="cancel"></button></div>
   </div>
 </section>
+
+<!-- 7. 나 -->
+<section class="panel" id="p-me" hidden></section>
 </div>
+<div class="sheet" id="shareSheet" hidden><div id="shareBody"></div></div>
 
 <nav class="tabs" role="tablist">
   <button role="tab" data-tab="sound" aria-selected="true"><b>ㄱ</b><span data-t="tSound"></span></button>
@@ -366,6 +407,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
   <button role="tab" data-tab="quiz" aria-selected="false"><b>?</b><span data-t="tQuiz"></span></button>
   <button role="tab" data-tab="say" aria-selected="false"><b>말</b><span data-t="tSay"></span></button>
   <button role="tab" data-tab="song" aria-selected="false"><b>♪</b><span data-t="tSong"></span></button>
+  <button role="tab" data-tab="me" aria-selected="false"><b>★</b><span data-t="tMe"></span></button>
 </nav>
 
 <script>
@@ -381,9 +423,9 @@ const T={
  slow:{ko:'천천히',pt:'Devagar'},
  tSound:{ko:'소리',pt:'Sons'},tBuild:{ko:'조합',pt:'Montar'},tWrite:{ko:'쓰기',pt:'Escrever'},tQuiz:{ko:'퀴즈',pt:'Quiz'},tSay:{ko:'말하기',pt:'Falar'},
  chart:{ko:'가나다라 표 (누르면 소리 나요)',pt:'Tabela Ga-Na-Da-Ra (toque para ouvir)'},
- lvNames:{ko:['한 글자','음식','동물·자연','인사','대답','마음','부탁하기','가게·식당','자기소개','생활 문장','K-POP 1','K-POP 2','드라마 1','드라마 2'],pt:['Palavras curtas','Comida','Animais','Saudações','Respostas','Sentimentos','Pedidos','Loja','Apresentação','Dia a dia','K-POP 1','K-POP 2','Dorama 1','Dorama 2']},
+ lvNames:{ko:['한 글자','음식','동물·자연','인사','대답','마음','부탁하기','가게·식당','자기소개','생활 문장','K-POP 1','K-POP 2','드라마 1','드라마 2','숫자','가족','요일·시간','식당 주문','사랑 표현'],pt:['Palavras curtas','Comida','Animais','Saudações','Respostas','Sentimentos','Pedidos','Loja','Apresentação','Dia a dia','K-POP 1','K-POP 2','Dorama 1','Dorama 2','Números','Família','Dias e horas','No restaurante','Frases de amor']},
  nextLv:{ko:'다음 단계 ▶',pt:'Próximo nível ▶'},lvWord:{ko:'단',pt:'Nível'},
- tSong:{ko:'노래',pt:'Músicas'},songTitle:{ko:'한글 노래방',pt:'Karaokê de coreano'},
+ tMe:{ko:'나',pt:'Eu'},tSong:{ko:'노래',pt:'Músicas'},songTitle:{ko:'한글 노래방',pt:'Karaokê de coreano'},
  songLead:{ko:'노래를 들으며 가사를 따라 불러요. Suno로 만든 내 노래도 넣을 수 있어요. 가사 줄을 누르면 읽어줘요.',pt:'Ouça e cante junto. Você pode adicionar suas músicas do Suno. Toque numa linha para ouvi-la.'},
  addSong:{ko:'+ 내 Suno 노래 추가',pt:'+ Adicionar minha música do Suno'},fTitle:{ko:'노래 제목',pt:'Título'},
  fAudio:{ko:'노래 파일 (mp3, 나중에 넣어도 돼요)',pt:'Arquivo (mp3, pode adicionar depois)'},fLyrics:{ko:'한국어 가사 (한 줄에 한 줄씩)',pt:'Letra em coreano (uma linha por verso)'},
@@ -432,7 +474,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});
   $('langBtn').textContent=lang==='ko'?'PT':'한국어';
   $('langBtn').setAttribute('aria-label',lang==='ko'?'Português':'한국어');
-  renderDetail();renderChal();renderSay(false);if(typeof renderSongList==='function'&&$('nList'))renderSongList();renderQLevels();if(qState&&qState.i<qState.qs.length&&!$('qPlay').hidden)renderQ();else if(qState)endQuiz();
+  renderDetail();renderChal();renderSay(false);if(typeof renderMe==='function'){updChip();if(tab==='me')renderMe()}if(typeof renderSongList==='function'&&$('nList'))renderSongList();renderQLevels();if(qState&&qState.i<qState.qs.length&&!$('qPlay').hidden)renderQ();else if(qState)endQuiz();
 }
 
 /* ---------- 소리 (TTS) ---------- */
@@ -609,7 +651,23 @@ const LEVELS=[
  [L('가지 마','Não vá','gaji ma','ga-dji ma','🚶'),L('보고 싶었어','Senti sua falta','bogo sipeosseo','bô-gô si-pó-ssó','🥺'),
   L('사랑해','Te amo (informal)','saranghae','sa-rang-ré','❤️'),L('나랑 사귈래?','Quer namorar comigo?','narang sagwillae','na-rang sa-guil-lé','💌'),
   L('괜찮아?','Você está bem?','gwaenchana','guén-tcha-na','🤗'),L('내가 지켜줄게','Eu vou te proteger','naega jikyeojulge','né-ga dji-kió-djul-ke','🛡️'),
-  L('밥 먹었어?','Já comeu?','bap meogeosseo','bap mó-gó-ssó','🍚'),L('행복하자','Vamos ser felizes','haengbokaja','réng-bô-ka-dja','🌈')]
+  L('밥 먹었어?','Já comeu?','bap meogeosseo','bap mó-gó-ssó','🍚'),L('행복하자','Vamos ser felizes','haengbokaja','réng-bô-ka-dja','🌈')],
+ [L('하나','Um (1)','hana','ra-na','1️⃣'),L('둘','Dois (2)','dul','dul','2️⃣'),L('셋','Três (3)','set','set','3️⃣'),L('넷','Quatro (4)','net','net','4️⃣'),
+  L('다섯','Cinco (5)','daseot','da-sót','5️⃣'),L('여섯','Seis (6)','yeoseot','ió-sót','6️⃣'),L('일곱','Sete (7)','ilgop','il-gôp','7️⃣'),L('열','Dez (10)','yeol','iól','🔟')],
+ [L('엄마','Mamãe','eomma','óm-ma','👩'),L('아빠','Papai','appa','a-ppa','👨'),L('언니','Irmã mais velha (de uma garota)','eonni','ón-ni','👧'),
+  L('누나','Irmã mais velha (de um garoto)','nuna','nu-na','👱‍♀️'),L('형','Irmão mais velho (de um garoto)','hyeong','rióng','🧑'),
+  L('동생','Irmão ou irmã mais novo(a)','dongsaeng','dông-séng','🧒'),L('할머니','Avó','halmeoni','ral-mó-ni','👵'),L('할아버지','Avô','harabeoji','ra-ra-bó-dji','👴')],
+ [L('오늘','Hoje','oneul','ô-nul','📅'),L('내일','Amanhã','naeil','né-il','➡️'),L('어제','Ontem','eoje','ó-djê','⬅️'),
+  L('월요일','Segunda-feira','woryoil','uó-riô-il','1️⃣'),L('금요일','Sexta-feira','geumyoil','gu-miô-il','🎉'),L('주말','Fim de semana','jumal','dju-mal','🛋️'),
+  L('아침','Manhã','achim','a-tchim','🌅'),L('밤','Noite','bam','bam','🌙')],
+ [L('여기요!','Com licença! (chamar o garçom)','yeogiyo','ió-gui-iô','🙋'),L('메뉴 주세요','O cardápio, por favor','menyu juseyo','mê-nhu dju-sê-iô','📋'),
+  L('이거 하나 주세요','Um desse, por favor','igeo hana juseyo','i-gó ra-na dju-sê-iô','☝️'),L('물 좀 주세요','Uma água, por favor','mul jom juseyo','mul djôm dju-sê-iô','💧'),
+  L('맵게 해 주세요','Bem apimentado, por favor','maepge hae juseyo','mép-kkê ré dju-sê-iô','🌶️'),L('안 맵게 해 주세요','Sem pimenta, por favor','an maepge hae juseyo','an mép-kkê ré dju-sê-iô','🥛'),
+  L('맛있게 드세요','Bom apetite','masitge deuseyo','ma-sit-kkê du-sê-iô','🍽️'),L('잘 먹었습니다','Estava ótimo, obrigado(a)','jal meogeotseumnida','djal mó-gó-ssum-ni-da','😋')],
+ [L('좋아해요','Gosto de você','joahaeyo','djô-a-ré-iô','💗'),L('첫눈에 반했어요','Me apaixonei à primeira vista','cheonnune banhaesseoyo','tchón-nu-nê ba-nés-só-iô','😍'),
+  L('내 마음 알지?','Você sabe o que eu sinto, né?','nae maeum alji','né ma-um al-dji','💞'),L('영원히','Para sempre','yeongwonhi','ióng-uó-ni','♾️'),
+  L('같이 있고 싶어요','Quero ficar com você','gachi itgo sipeoyo','ga-tchi it-kkô si-pó-iô','🫶'),L('너무 예뻐요','Você é muito linda','neomu yeppeoyo','nó-mu iê-ppó-iô','🌹'),
+  L('자기야','Amor (apelido carinhoso)','jagiya','dja-gui-ia','💑'),L('결혼해 줄래?','Quer casar comigo?','gyeolhonhae jullae','guió-ro-ne djul-lé','💍')]
 ];
 // K-POP 곡 (가사는 넣지 않고 제목·뜻 + 공식 뮤직비디오 검색 링크)
 const SONGS=[ // [가수, 한국어 제목, 영어 제목, 뜻, 발음, 단계]
@@ -659,6 +717,7 @@ function go(name){
   document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='p-'+name);
   if(name==='write'){requestAnimationFrame(sizePad);renderParts(partsOf(writeList()[wIdx]),-1)}
   if(name==='quiz'&&!qState)startQuiz();
+  if(name==='me')renderMe();
   window.scrollTo(0,0);
 }
 
@@ -731,7 +790,7 @@ $('bRes').onclick=sayRes;$('bRes').onkeydown=e=>{if(e.key==='Enter'||e.key===' '
 /* ---------- 3. 쓰기 ---------- */
 const SYL=['가','나','다','마','바','사','아','한','글','물','집','꽃','책','별','눈','손','빵','엄','마'];
 let wSet='c',wIdx=0;
-const writeList=()=>wSet==='c'?[...CONS,...DBL].map(a=>a[0]):wSet==='v'?[...VOW,...VOW2].map(a=>a[0]):SYL;
+const writeList=()=>wSet==='c'?[...CONS,...DBL].map(a=>a[0]):wSet==='v'?[...VOW,...VOW2].map(a=>a[0]):wSet==='n'?([...(store.get('hg-name-ko','')||'').replace(/[^가-힣]/g,'')].length?[...store.get('hg-name-ko','').replace(/[^가-힣]/g,'')]:['가']):SYL;
 function syncSets(){document.querySelectorAll('#wSets .pill').forEach(b=>b.setAttribute('aria-pressed',b.dataset.set===wSet))}
 document.querySelectorAll('#wSets .pill').forEach(b=>b.onclick=()=>{wSet=b.dataset.set;wIdx=0;syncSets();loadW()});
 const guide=$('guide'),ink=$('ink'),gx=guide.getContext('2d'),ix=ink.getContext('2d');
@@ -780,6 +839,7 @@ $('wCheck').onclick=()=>{
   if(!drawn){$('wMsg').textContent=t('w0');return}
   const s=scoreW(),n=s>=0.8?3:s>=0.55?2:s>=0.3?1:0;
   $('wStars').textContent='★'.repeat(n)+'☆'.repeat(3-n);
+  {const ws=store.get('hg-wstars',{}),g=writeList()[wIdx];if(!ws[g]||ws[g]<n){ws[g]=n;store.set('hg-wstars',ws)}}
   $('wMsg').textContent=t(n===3?'w3':n===2?'w2':'w1');
   if(n===3)speak(writeList()[wIdx].length===1&&JAMO[writeList()[wIdx]]?soundOf(writeList()[wIdx]):writeList()[wIdx]);
 };
@@ -823,25 +883,27 @@ if(document.fonts&&document.fonts.load)document.fonts.load(`500 100px "Noto Sans
 
 /* ---------- 4. 퀴즈 (1~10단) ---------- */
 let qState=null,qLevel=store.get('hg-qlv',0);
+const wrong=store.get('hg-wrong',{});
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const starsOf=(sc,n)=>{const r=sc/n;return r>=0.9?3:r>=0.7?2:r>=0.4?1:0};
 function lvName(i){return T.lvNames[lang][i]}
 function renderQLevels(){
   const best=store.get('hg-qbest',{});
   $('qLevels').innerHTML=LEVELS.map((_,i)=>{const st=best[i]!=null?starsOf(best[i],LEVELS[i].length):-1;
-    return`<button class="lv${i>=10?' kpop':''}" data-lv="${i}" aria-pressed="${i===qLevel}"><b>${i>=10?(i>=12?'🎬 ':'🎤 ')+lvName(i):i+1}</b><small>${lvName(i)}</small><i>${st<0?'':'★'.repeat(st)+'☆'.repeat(3-st)}</i></button>`}).join('');
-  $('qLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>startQuiz(+b.dataset.lv));
+    return lvBtn(i,i===qLevel,st<0?'':'★'.repeat(st)+'☆'.repeat(3-st))}).join('');
+  $('qLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{const i=+b.dataset.lv;if(lvLocked(i))return lockedMsg();startQuiz(i)});
+  const nW=Object.keys(wrong).length;$('qWrongBtn').hidden=!nW;$('qWrongBtn').textContent=L2('📝 틀린 문제 다시 풀기 ('+nW+')','📝 Refazer as que errei ('+nW+')');
 }
 function startQuiz(lv){
   if(lv!=null){qLevel=lv;store.set('hg-qlv',lv)}
   const items=LEVELS[qLevel];
   const qs=shuffle(items).map((w,i)=>{const types=w[4]?['pic','listen','mean']:['listen','mean'];
     return{w,type:types[i%types.length],opts:shuffle([w,...shuffle(items.filter(x=>x!==w)).slice(0,3)])}});
-  qState={qs,i:0,score:0,answered:false};$('qEnd').hidden=true;$('qPlay').hidden=false;renderQLevels();renderQ();
+  qState={qs,i:0,score:0,answered:false,review:false};$('qEnd').hidden=true;$('qPlay').hidden=false;renderQLevels();renderQ();
 }
 function renderQ(){
   const s=qState,q=s.qs[s.i];
-  $('qNum').textContent=`${qLevel>=10?lvName(qLevel):(qLevel+1)+(lang==='ko'?'단':'')} · ${s.i+1} / ${s.qs.length}`;$('qScore').textContent=`★ ${s.score}`;
+  $('qNum').textContent=`${s.review?'📝 '+L2('오답 노트','Revisão'):lvTitle(qLevel)} · ${s.i+1} / ${s.qs.length}`;$('qScore').textContent=`★ ${s.score}`;
   $('qBar').style.width=(s.i/s.qs.length*100)+'%';
   if(q.type==='mean'){
     $('qCard').innerHTML=`<div style="font-family:var(--f-disp);font-size:26px;line-height:1.3">“${q.w[1]}”</div><div class="msg" style="margin-top:6px">${lang==='ko'?'이 뜻의 한국말은?':'Como se diz em coreano?'}</div>`;
@@ -861,23 +923,32 @@ function renderQ(){
 function answer(o,btn){
   const s=qState,q=s.qs[s.i];if(s.answered)return;s.answered=true;
   const ok=o===q.w;if(ok)s.score++;
+  if(!ok)wrong[q.w[0]]=q.w;else if(s.review)delete wrong[q.w[0]];store.set('hg-wrong',wrong);
   [...$('qOpts').children].forEach(b=>{if(b.dataset.k===q.w[0])b.classList.add('ok')});
   if(!ok)btn.classList.add('no');
   $('qScore').textContent=`★ ${s.score}`;speak(q.w[0]);
   setTimeout(()=>{s.i++;s.answered=false;if(s.i>=s.qs.length)endQuiz();else renderQ()},1300);
 }
+function startReview(){
+  const items=Object.values(wrong);if(!items.length)return;
+  const pool=LEVELS.flat();
+  const qs=shuffle(items).slice(0,10).map((w,i)=>({w,type:i%2?'listen':'mean',opts:shuffle([w,...shuffle(pool.filter(x=>x[0]!==w[0])).slice(0,3)])}));
+  qState={qs,i:0,score:0,answered:false,review:true};$('qEnd').hidden=true;$('qPlay').hidden=false;renderQLevels();renderQ();
+  window.scrollTo({top:$('qPlay').offsetTop-80,behavior:'smooth'});
+}
 function endQuiz(){
-  const s=qState,best=store.get('hg-qbest',{});best[qLevel]=Math.max(best[qLevel]||0,s.score);store.set('hg-qbest',best);
+  const s=qState,best=store.get('hg-qbest',{});if(!s.review){best[qLevel]=Math.max(best[qLevel]||0,s.score);store.set('hg-qbest',best)}
   $('qPlay').hidden=true;$('qEnd').hidden=false;$('qBar').style.width='100%';
   const st=starsOf(s.score,s.qs.length);
   $('qFinal').textContent=`${s.score} / ${s.qs.length}`;
   $('qFinalMsg').textContent='★'.repeat(st)+'☆'.repeat(3-st)+'  '+t(st===3?'end3':st===2?'end2':'end1');
-  $('qBest').textContent=`${qLevel>=10?lvName(qLevel):(qLevel+1)+(lang==='ko'?'단':'')} ${t('best')}: ${best[qLevel]} / ${s.qs.length}`;
-  $('qNextLv').hidden=qLevel>=LEVELS.length-1;
+  $('qBest').textContent=s.review?L2('남은 틀린 문제: ','Ainda para revisar: ')+Object.keys(wrong).length:`${lvTitle(qLevel)} ${t('best')}: ${best[qLevel]} / ${s.qs.length}`;
+  $('qNextLv').hidden=s.review||nextOpen(qLevel)<0;
   renderQLevels();
 }
 $('qAgain').onclick=()=>startQuiz();
-$('qNextLv').onclick=()=>startQuiz(Math.min(qLevel+1,LEVELS.length-1));
+$('qNextLv').onclick=()=>{const n=nextOpen(qLevel);if(n>=0)startQuiz(n)};
+$('qWrongBtn').onclick=startReview;
 
 /* ---------- 5. 말하기 + 발음 교정 ---------- */
 let sLv=store.get('hg-slv',0),sIdx=0,rec=null,listening=false;
@@ -886,7 +957,7 @@ const SAYI=()=>LEVELS[sLv];
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function renderSay(resetFb=true){
   const p=SAYI()[sIdx];
-  $('sCount').textContent=`${sLv>=10?lvName(sLv):(sLv+1)+(lang==='ko'?'단':'')} · ${sIdx+1} / ${SAYI().length}`;
+  $('sCount').textContent=`${lvTitle(sLv)} · ${sIdx+1} / ${SAYI().length}`;
   $('sTarget').innerHTML=[...p[0]].map(ch=>ch===' '?' ':`<span data-ch="${ch}">${ch}</span>`).join('');
   bindSyl();
   $('sRom').textContent=p[2];$('sPron').textContent=PRON[p[0]]?'🇧🇷 '+PRON[p[0]]:'';$('sMean').textContent=(p[4]?p[4]+' ':'')+p[1];
@@ -896,9 +967,9 @@ function renderSay(resetFb=true){
 }
 function renderSayList(){
   $('sLevels').innerHTML=LEVELS.map((L,i)=>{const n=L.filter(x=>said.has(x[0])).length;
-    return`<button class="lv${i>=10?' kpop':''}" data-lv="${i}" aria-pressed="${i===sLv}"><b>${i>=10?(i>=12?'🎬 ':'🎤 ')+lvName(i):i+1}</b><small>${lvName(i)}</small><i>${n?n+'/'+L.length:''}</i></button>`}).join('');
-  $('sLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{sLv=+b.dataset.lv;sIdx=0;store.set('hg-slv',sLv);renderSay();speak(SAYI()[0][0])});
-  $('sList').innerHTML=(SONGS.some(x=>x[5]===sLv)?`<div class="g-head">${lang==='ko'?'🎬 뮤직비디오 보기':'🎬 Assistir ao clipe'}</div><div class="songs">`+SONGS.filter(x=>x[5]===sLv).map(x=>`<a class="song" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(x[0]+' '+x[1]+' '+x[2]+' official MV')}"><span class="artist">${x[0]}</span><b>${x[1]}</b><small class="pron">${x[4]}</small><small>${x[3]}</small></a>`).join('')+'</div>':'')+`<div class="g-head">${sLv>=10?lvName(sLv)+' · '+(sLv>=12?(lang==='ko'?'드라마에 자주 나오는 말':'Frases comuns nos doramas'):(lang==='ko'?'노래 속 단어':'Palavras das músicas')):(sLv+1)+(lang==='ko'?'단':'')+' · '+lvName(sLv)}</div>`;
+    return lvBtn(i,i===sLv,n?n+'/'+L.length:'')}).join('');
+  $('sLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{if(lvLocked(+b.dataset.lv))return lockedMsg();sLv=+b.dataset.lv;sIdx=0;store.set('hg-slv',sLv);renderSay();speak(SAYI()[0][0])});
+  $('sList').innerHTML=(SONGS.some(x=>x[5]===sLv)?`<div class="g-head">${lang==='ko'?'🎬 뮤직비디오 보기':'🎬 Assistir ao clipe'}</div><div class="songs">`+SONGS.filter(x=>x[5]===sLv).map(x=>`<a class="song" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(x[0]+' '+x[1]+' '+x[2]+' official MV')}"><span class="artist">${x[0]}</span><b>${x[1]}</b><small class="pron">${x[4]}</small><small>${x[3]}</small></a>`).join('')+'</div>':'')+`<div class="g-head">${sLv>=10&&sLv<=13?lvName(sLv)+' · '+(sLv>=12?(lang==='ko'?'드라마에 자주 나오는 말':'Frases comuns nos doramas'):(lang==='ko'?'노래 속 단어':'Palavras das músicas')):lvTitle(sLv)+(sLv<10?' · '+lvName(sLv):'')}</div>`;
   const box=document.createElement('div');box.className='g-items';
   SAYI().forEach((x,idx)=>{const b=document.createElement('button');if(said.has(x[0]))b.classList.add('done');
     b.innerHTML=`<b>${x[0]}</b><small class="pron">${x[3]}</small><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
@@ -907,7 +978,7 @@ function renderSayList(){
 }
 function bindSyl(){$('sTarget').querySelectorAll('span').forEach(sp=>sp.onclick=()=>speak(sp.dataset.ch,0.5))}
 $('sPlay').onclick=()=>speak(SAYI()[sIdx][0]);
-$('sNext').onclick=()=>{sIdx++;if(sIdx>=SAYI().length){sIdx=0;sLv=(sLv+1)%LEVELS.length;store.set('hg-slv',sLv)}renderSay();speak(SAYI()[sIdx][0])};
+$('sNext').onclick=()=>{sIdx++;if(sIdx>=SAYI().length){sIdx=0;do{sLv=(sLv+1)%LEVELS.length}while(lvLocked(sLv));store.set('hg-slv',sLv)}renderSay();speak(SAYI()[sIdx][0])};
 const clean=s=>[...s].filter(ch=>/[가-힣]/.test(ch));
 function align(target,heard){ // LCS: target 각 글자가 맞았는지
   const a=clean(target),b=heard,n=a.length,m=b.length,D=[...Array(n+1)].map(()=>Array(m+1).fill(0));
@@ -1057,6 +1128,297 @@ $('nForm').addEventListener('submit',async e=>{e.preventDefault();
   $('nForm').reset();$('nForm').hidden=true;$('nAddBtn').hidden=false;renderSongList();openSong({...sg,mine:true});
 });
 loadMine();
+
+/* ---------- 7. 나: 실력·이름·공유 ---------- */
+// 브라질(포르투갈어) 이름 → 한글 표기
+const NAME_DICT={ana:'아나',maria:'마리아',joao:'주앙',jose:'조제',pedro:'페드루',lucas:'루카스',gabriel:'가브리엘',beatriz:'베아트리스',
+ julia:'줄리아',mariana:'마리아나',fernanda:'페르난다',juliana:'줄리아나',larissa:'라리사',camila:'카밀라',amanda:'아만다',bruna:'브루나',
+ leticia:'레치시아',gabriela:'가브리엘라',rafael:'하파엘',felipe:'펠리피',matheus:'마테우스',mateus:'마테우스',gustavo:'구스타부',thiago:'치아구',tiago:'치아구',
+ bruno:'브루누',carlos:'카를루스',paulo:'파울루',luiz:'루이스',luis:'루이스',eduardo:'에두아르두',rodrigo:'호드리구',marcos:'마르쿠스',
+ antonio:'안토니우',francisco:'프란시스쿠',daniel:'다니엘',vitoria:'비토리아',isabela:'이자벨라',isabella:'이자벨라',sofia:'소피아',alice:'알리시',
+ laura:'라우라',helena:'엘레나',valentina:'발렌치나',giovanna:'조반나',carla:'카를라',patricia:'파트리시아',aline:'알리니',adriana:'아드리아나',
+ sandra:'산드라',claudia:'클라우지아',luana:'루아나',debora:'데보라',eliana:'엘리아나',daiane:'다이아니',carmem:'카르멩',talita:'탈리타',
+ arthur:'아르투르',miguel:'미게우',heitor:'에이토르',davi:'다비',bernardo:'베르나르두',enzo:'엔주',nicolas:'니콜라스',samuel:'사무에우',
+ guilherme:'길례르미',henrique:'엔히키',leonardo:'레오나르두',murilo:'무릴루',lorenzo:'로렌주',theo:'테우',pietro:'피에트루',joaquim:'조아킹',
+ rafaela:'하파엘라',vanessa:'바네사',jessica:'제시카',priscila:'프리실라',renata:'헤나타',simone:'시모니',tatiana:'타치아나',vivian:'비비안',
+ marcelo:'마르셀루',ricardo:'히카르두',roberto:'호베르투',fabio:'파비우',andre:'안드레',diego:'지에구',vinicius:'비니시우스',caio:'카이우',
+ igor:'이고르',kaua:'카우앙',yasmin:'야스민',manuela:'마누엘라',livia:'리비아',lara:'라라',clara:'클라라',cecilia:'세실리아',eloa:'엘로아',
+ rosa:'호자',lucia:'루시아',fatima:'파치마',regina:'헤지나',silvia:'시우비아',sonia:'소니아',vera:'베라',denise:'데니지',monica:'모니카',
+ beatrice:'베아트리스',benicio:'베니시우',igreja:'이그레자'};
+function nameToHangul(raw){
+  return raw.trim().split(/\s+/).filter(Boolean).map(w=>{
+    const key=w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    if(NAME_DICT[key])return NAME_DICT[key];
+    return wordToHangul(w);
+  }).join(' ');
+}
+function wordToHangul(word){
+  // 1) 글자 → 소리 단위
+  const nfd=word.toLowerCase().normalize('NFD');
+  const ch=[];const accent=[];
+  for(const c of nfd){
+    if(/[̀-ͯ]/.test(c)){if(ch.length){if(c==='̃')ch[ch.length-1]+='~';else if(c==='̧'&&ch[ch.length-1]==='c')ch[ch.length-1]='ç';else accent[ch.length-1]=true}continue}
+    if(c==='ç'){ch.push('ç');continue}
+    if(/[a-zç]/.test(c))ch.push(c);
+  }
+  // NFD splits ç into c + cedilla(̧) which we treat as accent: fix
+  const s=ch;const V=x=>x&&/^[aeiouy]/.test(x);
+  const P=[];// {c:consonant} or {v:vowel,n:nasal}
+  for(let i=0;i<s.length;i++){
+    const c=s[i],nx=s[i+1]||'',nx2=s[i+2]||'';
+    const front=V(nx)&&/^[eiy]/.test(nx);
+    if((c==='y'||c==='w')&&V(nx)&&nx[0]!=='i'&&nx[0]!=='y'&&i===0){P.push({g:c==='y'?'y':'w'});continue}
+    if(c==='w'&&V(nx)){P.push({g:'w'});continue}
+    if(V(c)){
+      let v=c[0]==='y'?'i':c[0];const nas=c.includes('~');
+      if(c[0]==='w')v='u';
+      P.push({v,n:nas,acc:!!accent[i]});continue;
+    }
+    if(c==='w'){P.push({v:'u'});continue}
+    if(c==='h'){continue}
+    if(c==='n'&&nx==='h'){P.push({c:'ɲ'});i++;continue}
+    if(c==='l'&&nx==='h'){P.push({c:'ʎ'});i++;continue}
+    if(c==='c'&&nx==='h'){P.push({c:'ʃ'});i++;continue}
+    if(c==='p'&&nx==='h'){P.push({c:'f'});i++;continue}
+    if(c==='t'&&nx==='h'){P.push({c:'t'});i++;continue}
+    if(c==='r'&&nx==='r'){P.push({c:'h'});i++;continue}
+    if(c==='s'&&nx==='s'){P.push({c:'s'});i++;continue}
+    if(c==='s'&&nx==='c'&&/^[ei]/.test(nx2)){P.push({c:'s'});i++;continue}
+    if(c==='q'&&nx==='u'){P.push({c:'k'});if(/^[ei]/.test(nx2))i++;continue}
+    if(c==='g'&&nx==='u'&&/^[ei]/.test(nx2)){P.push({c:'g'});i++;continue}
+    if(c===nx&&!V(c)){continue}// 겹자음 하나로 (ll, nn, tt…)
+    if(c==='ç'){P.push({c:'s'});continue}
+    if(c==='c'){P.push({c:front?'s':'k'});continue}
+    if(c==='g'){P.push({c:front?'ʒ':'g'});continue}
+    if(c==='j'){P.push({c:'ʒ'});continue}
+    if(c==='x'){P.push({c:'ʃ'});continue}
+    if(c==='r'){P.push({c:(i===0||/[nls]/.test(s[i-1]||''))?'h':'r'});continue}
+    if(c==='s'){P.push({c:(V(s[i-1])&&V(nx))?'z':'s'});continue}
+    if(c==='z'){P.push({c:'z'});continue}
+    if(c==='k'){P.push({c:'k'});continue}
+    P.push({c});
+  }
+  // ão → 앙
+  for(let i=0;i<P.length-1;i++)if(P[i].v==='a'&&P[i].n&&P[i+1].v==='o'){P.splice(i+1,1)}
+  // gi/ji + 모음 → 자/조/주 (Giovanna → 조반나)
+  for(let i=0;i<P.length-2;i++)if(P[i].c==='ʒ'&&P[i+1].v==='i'&&!P[i+1].acc&&P[i+2].v){P.splice(i+1,1)}
+  // n + g(뒤에 모음 없음) → ㅇ 받침 (Wellington)
+  for(let i=0;i<P.length-1;i++)if(P[i].c==='n'&&P[i+1].c==='g'&&!(P[i+2]&&P[i+2].v)){P[i].c='ng';P.splice(i+1,1)}
+  // 2) 브라질식 끝소리: 마지막 모음 o→u, e→i (강세 표시 없을 때)
+  let last=-1;for(let i=P.length-1;i>=0;i--)if(P[i].v){last=i;break}
+  const vcount=P.filter(p=>p.v).length;
+  if(last>=0&&vcount>1&&!P[last].acc&&!P[last].n&&P.slice(last+1).every(p=>p.c==='s'||p.c==='z')){
+    if(P[last].v==='o')P[last].v='u';else if(P[last].v==='e')P[last].v='i';
+  }
+  // ti→치, di→지
+  for(let i=0;i<P.length-1;i++)if(P[i+1].v==='i'){if(P[i].c==='t')P[i].c='tʃ';else if(P[i].c==='d')P[i].c='dʒ'}
+  // 3) 한글로 조립
+  const ON={b:'ㅂ',d:'ㄷ',f:'ㅍ',g:'ㄱ',k:'ㅋ',l:'ㄹ',m:'ㅁ',n:'ㄴ',p:'ㅍ',s:'ㅅ',t:'ㅌ',v:'ㅂ',z:'ㅈ',ʃ:'ㅅ',ʒ:'ㅈ',ɲ:'ㄴ',ʎ:'ㄹ',h:'ㅎ',r:'ㄹ',tʃ:'ㅊ',dʒ:'ㅈ'};
+  const VV={a:'ㅏ',e:'ㅔ',i:'ㅣ',o:'ㅗ',u:'ㅜ'};
+  const YV={a:'ㅑ',e:'ㅖ',i:'ㅣ',o:'ㅛ',u:'ㅠ'};
+  const SV={a:'ㅑ',e:'ㅔ',i:'ㅣ',o:'ㅛ',u:'ㅠ'};// ʃ: 샤 셰→세 시 쇼 슈
+  const WV={a:'ㅘ',e:'ㅞ',i:'ㅟ',o:'ㅝ',u:'ㅜ'};
+  const out=[];// {c,v,f}
+  for(let i=0;i<P.length;i++){
+    const p=P[i],nx=P[i+1];
+    if(p.g){if(nx&&nx.v){out.push({c:'ㅇ',v:(p.g==='y'?YV:WV)[nx.v],f:nx.n?'ㅇ':''});i++}continue}
+    if(p.v){out.push({c:'ㅇ',v:VV[p.v],f:p.n?'ㅇ':''});continue}
+    if(nx&&nx.v){
+      let v=VV[nx.v];
+      if(p.c==='ɲ'||p.c==='ʎ')v=YV[nx.v];
+      if(p.c==='ʃ')v=nx.v==='e'?'ㅔ':SV[nx.v];
+      if(p.c==='ʎ'){const pr=out[out.length-1];if(pr&&!pr.f)pr.f='ㄹ'}
+      if(p.c==='l'){const pr=out[out.length-1];if(pr&&!pr.f)pr.f='ㄹ'}
+      out.push({c:ON[p.c]||'ㅇ',v,f:nx.n?'ㅇ':''});i++;continue;
+    }
+    // 받침이 될 자음
+    const pr=out[out.length-1];
+    const end=!nx;
+    if(pr&&!pr.f&&p.c==='ng'){pr.f='ㅇ';continue}
+    if(pr&&!pr.f&&(p.c==='m'||p.c==='n')){pr.f=(p.c==='m'&&end)||(nx&&/^[gk]$/.test(nx.c||''))?'ㅇ':'ㄴ';continue}
+    if(pr&&!pr.f&&p.c==='l'){pr.f='ㄹ';continue}
+    const iV={ʃ:1,ʒ:1,ɲ:1,ʎ:1,tʃ:1,dʒ:1};
+    const z=p.c==='z'?'s':p.c;
+    if(ON[z])out.push({c:ON[z],v:iV[z]?'ㅣ':'ㅡ',f:''});
+  }
+  const C='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'.split('');
+  const J='ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ'.split('');
+  const F=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  return out.map(o=>String.fromCharCode(0xAC00+(C.indexOf(o.c)*21+J.indexOf(o.v))*28+F.indexOf(o.f))).join('');
+}
+
+const SHARE_URL='https://jjjeslin72-art.github.io/hangul-a/teste';
+const SHARE_URL_SHORT='jjjeslin72-art.github.io/hangul-a/teste';
+function L2(ko,pt){return lang==='ko'?ko:pt}
+function todayStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const days=new Set(store.get('hg-days',[]));days.add(todayStr());store.set('hg-days',[...days]);
+function streak(){let n=0;const d=new Date();while(days.has(todayStr(d))){n++;d.setDate(d.getDate()-1)}return n}
+let shares=store.get('hg-shares',0);
+const REWARDS=[{n:1,ic:'✨',ko:'골드 카드 디자인',pt:'Cartão dourado',kd:'공유 카드가 금색으로 바뀌어요',pd:'Seus cartões ficam dourados'},
+ {n:3,ic:'💌',ko:'보너스 단계: 사랑 표현',pt:'Nível bônus: frases de amor',kd:'퀴즈·말하기에 새 단계가 열려요',pd:'Novo nível no quiz e na fala'},
+ {n:5,ic:'👑',ko:'서포터 왕관 배지',pt:'Selo de apoiador',kd:'내 카드에 왕관이 붙어요',pd:'Uma coroa nos seus cartões'}];
+const LVICON={10:'🎤',11:'🎤',12:'🎬',13:'🎬',14:'🔢',15:'👨‍👩‍👧',16:'📅',17:'🍽️',18:'💌'};
+const BONUS=18;
+function lvLocked(i){return i===BONUS&&shares<3}
+function lvTitle(i){return i<10?(i+1)+(lang==='ko'?'단':''):(LVICON[i]||'')+' '+lvName(i)}
+function lvBtn(i,pressed,extra){const lk=lvLocked(i);
+  return`<button class="lv${i>=10?' kpop':''}${i===BONUS?' full':''}${lk?' locked':''}" data-lv="${i}" aria-pressed="${pressed}"><b>${i<10?i+1:(lk?'🔒':LVICON[i])+' '+lvName(i)}</b><small>${lvName(i)}</small><i>${lk?'':extra}</i></button>`}
+function nextOpen(i){const n=i+1;return n<LEVELS.length&&!lvLocked(n)?n:-1}
+let toastT=null;
+function toast(msg){let el=$('toastEl');if(!el){el=document.createElement('div');el.id='toastEl';el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.textContent=msg;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{el.hidden=true},3200)}
+function lockedMsg(){toast(L2('🔒 3번 공유하면 열려요! ★ 나 탭에서 공유해 보세요','🔒 Compartilhe 3 vezes para abrir! Veja na aba ★ Eu'));go('me')}
+function stats(){
+  const best=store.get('hg-qbest',{});let qstars=0,qpts=0;
+  Object.entries(best).forEach(([i,sc])=>{const L=LEVELS[+i];if(L){qstars+=starsOf(sc,L.length);qpts+=sc}});
+  const ws=store.get('hg-wstars',{});const wSum=Object.values(ws).reduce((a,b)=>a+b,0);
+  const xp=qpts*2+said.size*3+wSum*2+days.size*5;
+  return{qstars,said:said.size,write:Object.keys(ws).length,days:days.size,streak:streak(),xp};
+}
+const RANKS=[{x:0,ko:'입문',pt:'Iniciante',ic:'🌱'},{x:60,ko:'초급',pt:'Básico',ic:'🌿'},{x:180,ko:'중급',pt:'Intermediário',ic:'🌸'},{x:400,ko:'고급',pt:'Avançado',ic:'🌟'},{x:700,ko:'한글 마스터',pt:'Mestre do Hangul',ic:'👑'}];
+function rankOf(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k.x)r=i});return r}
+function updChip(){const n=streak();$('streakChip').textContent='🔥 '+n;$('streakChip').title=L2(n+'일 연속 공부','Estudando há '+n+' dias seguidos');
+  const nk=store.get('hg-name-ko','');$('wNamePill').hidden=!nk;$('wNamePill').textContent=L2('내 이름','Meu nome')}
+$('streakChip').onclick=()=>go('me');
+function esc(x){return String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function renderMe(){
+  const st=stats(),ri=rankOf(st.xp),rk=RANKS[ri],nx=RANKS[ri+1];
+  const pct=nx?Math.round((st.xp-rk.x)/(nx.x-rk.x)*100):100;
+  const nmIn=store.get('hg-name',''),nmKo=store.get('hg-name-ko','');
+  const pron=nmKo?autoPron(nmKo):'';
+  $('p-me').innerHTML=`
+  <h2>${L2('내 실력','Meu nível')}</h2>
+  <div class="me-card">
+    <div class="rank"><div class="ic" aria-hidden="true">${rk.ic}</div><div style="flex:1;min-width:0"><b>${L2(rk.ko,rk.pt)}${shares>=5?' 👑':''}</b><small>XP ${st.xp}${nx?' · '+L2('다음: '+nx.ko+' ('+nx.x+')','Próximo: '+nx.pt+' ('+nx.x+')'):''}</small></div><span class="fire">🔥 ${st.streak}</span></div>
+    <div class="xpbar"><i style="width:${pct}%"></i></div>
+    <div class="statg">
+      <div><b>${st.qstars}</b><small>${L2('퀴즈 ★','★ Quiz')}</small></div>
+      <div><b>${st.said}</b><small>${L2('말하기','Falas')}</small></div>
+      <div><b>${st.write}</b><small>${L2('쓴 글자','Letras')}</small></div>
+      <div><b>${st.days}</b><small>${L2('공부한 날','Dias')}</small></div>
+    </div>
+    <p class="msg" style="text-align:left">🔥 ${L2(st.streak+'일 연속 공부 중! 내일도 들어오면 이어져요.','Estudando há '+st.streak+' dia(s) seguido(s)! Volte amanhã para continuar.')}</p>
+    <button class="btn primary big wide" id="shSkill">📣 ${L2('내 실력 SNS에 자랑하기','Mostrar meu nível nas redes')}</button>
+  </div>
+
+  <h2>${L2('내 이름 한글로','Meu nome em coreano')} ✍️</h2>
+  <p class="lead">${L2('이름을 쓰면 한글로 바꿔 줘요. 브라질 이름도 돼요!','Escreva seu nome e veja em coreano!')}</p>
+  <div class="me-card">
+    <form class="nm-row" id="nmForm"><input id="nmIn" maxlength="40" autocomplete="off" placeholder="Beatriz" value="${esc(nmIn)}" aria-label="${L2('이름','Nome')}"><button class="btn primary" type="submit">${L2('바꾸기','Ver')}</button></form>
+    <div class="nm-out" id="nmOut" ${nmKo?'':'hidden'}>
+      <div class="big">${esc(nmKo)}</div>
+      <div class="pr">🇧🇷 ${esc(pron)}</div>
+      <div class="msg">${L2('자동 변환이라 조금 다를 수 있어요','Conversão automática, pode variar um pouco')}</div>
+      <div class="row" style="justify-content:center;margin-top:10px">
+        <button class="btn" id="nmPlay">🔊 ${L2('듣기','Ouvir')}</button>
+        <button class="btn" id="nmWrite">✎ ${L2('따라 쓰기','Escrever')}</button>
+      </div>
+      <button class="btn primary big wide" id="shName">📣 ${L2('이름 카드 공유하기','Compartilhar meu nome')}</button>
+    </div>
+  </div>
+
+  <h2>${L2('공유하고 선물 받기','Compartilhe e ganhe presentes')} 🎁</h2>
+  <p class="lead">${L2('앱을 친구에게 알려 주면 선물이 열려요. 지금까지 ','Divulgue o app e desbloqueie presentes. Você já compartilhou ')}<b>${shares}</b>${L2('번 공유했어요.',' vez(es).')}</p>
+  <div class="me-card" style="padding-top:6px">
+    ${REWARDS.map(w=>{const on=shares>=w.n;return`<div class="rw${on?' on':''}"><div class="ic" aria-hidden="true">${w.ic}</div><div class="tx"><b>${L2(w.ko,w.pt)}</b><small>${L2(w.kd,w.pd)}</small></div><div class="st">${on?'✅ '+L2('받음','Liberado'):'🔒 '+Math.min(shares,w.n)+'/'+w.n}</div></div>`}).join('')}
+    <button class="btn wide" id="shApp">📲 ${L2('친구에게 앱 알려 주기','Indicar o app para amigos')}</button>
+  </div>`;
+  $('shSkill').onclick=()=>openShare('skill');
+  $('shApp').onclick=()=>openShare('app');
+  $('nmForm').onsubmit=e=>{e.preventDefault();const v=$('nmIn').value.trim();if(!v)return;
+    const ko=nameToHangul(v);store.set('hg-name',v);store.set('hg-name-ko',ko);updChip();renderMe();speak(ko);
+    setTimeout(()=>{const o=$('nmOut');o&&o.scrollIntoView({behavior:'smooth',block:'center'})},50)};
+  if(nmKo){
+    $('nmPlay').onclick=()=>speak(nmKo);
+    $('nmWrite').onclick=()=>{wSet='n';wIdx=0;syncSets();go('write');loadW()};
+    $('shName').onclick=()=>openShare('name');
+  }
+}
+// ---------- 공유 카드 이미지 ----------
+function wrapText(ctx,text,x,y,maxW,lh){const words=String(text).split(' ');let line='',yy=y;
+  for(const w of words){const t2=line?line+' '+w:w;if(ctx.measureText(t2).width>maxW&&line){ctx.fillText(line,x,yy);line=w;yy+=lh}else line=t2}
+  if(line)ctx.fillText(line,x,yy);return yy}
+function fitFont(ctx,text,weight,family,max,maxW){let sz=max;do{ctx.font=`${weight} ${sz}px ${family}`;if(ctx.measureText(text).width<=maxW)break;sz-=6}while(sz>40);return sz}
+async function makeCard(kind){
+  try{await Promise.all([document.fonts.load('700 100px "Noto Sans KR"'),document.fonts.load('700 60px "Gowun Batang"')])}catch(e){}
+  const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const gold=shares>=1;
+  const C=gold?{bg:'#1C2422',fg:'#FFF8E7',mut:'#D9C9A3',acc:'#E2B85C',seal:'#C2402F',box:'#26322F'}:{bg:'#F5F7F5',fg:'#1C2422',mut:'#5B6A66',acc:'#1F6F6B',seal:'#C2402F',box:'#FFFFFF'};
+  const KR='"Noto Sans KR","Apple SD Gothic Neo",sans-serif',DS='"Gowun Batang",serif';
+  x.fillStyle=C.bg;x.fillRect(0,0,W,H);
+  if(gold){x.strokeStyle=C.acc;x.lineWidth=10;x.strokeRect(30,30,W-60,H-60)}
+  // 상단 로고
+  x.fillStyle=C.seal;x.beginPath();x.roundRect?x.roundRect(80,80,130,130,30):x.rect(80,80,130,130);x.fill();
+  x.fillStyle='#fff';x.font=`700 84px ${KR}`;x.textAlign='center';x.textBaseline='middle';x.fillText('한',145,150);
+  x.textAlign='left';x.fillStyle=C.fg;x.font=`700 60px ${DS}`;x.fillText('Hangul K',240,128);
+  x.fillStyle=C.mut;x.font=`500 34px ${KR}`;x.fillText('Aprenda coreano 🇰🇷',240,182);
+  if(shares>=5){x.font='80px sans-serif';x.textAlign='right';x.fillText('👑',W-80,150)}
+  x.textAlign='center';
+  const st=stats(),rk=RANKS[rankOf(st.xp)];
+  if(kind==='name'){
+    const ko=store.get('hg-name-ko',''),nm=store.get('hg-name','');
+    x.fillStyle=C.mut;x.font=`500 44px ${KR}`;x.fillText('Meu nome em coreano é',W/2,400);
+    x.fillStyle=C.box;x.beginPath();x.roundRect?x.roundRect(90,460,W-180,420,40):x.rect(90,460,W-180,420);x.fill();
+    const sz=fitFont(x,ko,700,KR,230,W-260);x.fillStyle=C.fg;x.font=`700 ${sz}px ${KR}`;x.fillText(ko,W/2,640);
+    x.fillStyle=C.seal;x.font=`700 50px ${KR}`;x.fillText(autoPron(ko),W/2,800);
+    x.fillStyle=C.fg;x.font=`700 64px ${DS}`;x.fillText(nm,W/2,980);
+    x.fillStyle=C.mut;x.font=`500 40px ${KR}`;x.fillText('Descubra o seu nome em coreano! ✍️',W/2,1070);
+  }else{
+    x.fillStyle=C.mut;x.font=`500 44px ${KR}`;x.fillText(kind==='app'?'Estou aprendendo coreano! 🇰🇷':'Meu nível de coreano',W/2,390);
+    x.font='170px sans-serif';x.fillText(rk.ic,W/2,560);
+    x.fillStyle=C.fg;x.font=`700 92px ${DS}`;x.fillText(rk.pt,W/2,720);
+    x.fillStyle=C.seal;x.font=`700 54px ${KR}`;x.fillText(rk.ko+' · XP '+st.xp,W/2,800);
+    const items=[['🔥',st.streak,'dias seguidos'],['★',st.qstars,'estrelas'],['🗣',st.said,'frases'],['✍',st.write,'letras']];
+    items.forEach((it,i)=>{const bx=90+i*235;x.fillStyle=C.box;x.beginPath();x.roundRect?x.roundRect(bx,860,215,200,30):x.rect(bx,860,215,200);x.fill();
+      x.fillStyle=C.fg;x.font='54px sans-serif';x.fillText(it[0],bx+107,915);x.font=`700 60px ${KR}`;x.fillText(String(it[1]),bx+107,990);
+      x.fillStyle=C.mut;x.font=`500 28px ${KR}`;x.fillText(it[2],bx+107,1038)});
+  }
+  // 하단
+  x.fillStyle=C.acc;x.beginPath();x.roundRect?x.roundRect(90,1130,W-180,150,36):x.rect(90,1130,W-180,150);x.fill();
+  x.fillStyle=gold?'#1C2422':'#fff';x.font=`700 44px ${KR}`;x.fillText('📲 App grátis: Hangul K',W/2,1182);
+  x.font=`500 32px ${KR}`;x.fillText(SHARE_URL_SHORT,W/2,1240);
+  return await new Promise(res=>c.toBlob(b=>res(b),'image/png'));
+}
+function shareText(kind){
+  const st=stats(),rk=RANKS[rankOf(st.xp)];
+  if(kind==='name'){const ko=store.get('hg-name-ko','');return`Meu nome em coreano é ${ko} (${autoPron(ko)})! 🇰🇷✍️ Descubra o seu no app grátis Hangul K 👉 ${SHARE_URL} #coreano #hangul #kpop #dorama`}
+  if(kind==='app')return`Estou aprendendo coreano com o app grátis Hangul K! 🇰🇷 Sons, escrita, quiz, pronúncia e karaokê de K-pop. Venha também 👉 ${SHARE_URL} #coreano #aprendercoreano #hangul #kpop`;
+  return`Meu nível de coreano no Hangul K: ${rk.ic} ${rk.pt} (XP ${st.xp}) · 🔥 ${st.streak} dia(s) seguidos! Aprenda grátis também 👉 ${SHARE_URL} #coreano #hangul #kpop #dorama`;
+}
+let lastShareCount=0;
+function addShare(){const now=Date.now();if(now-lastShareCount<4000)return;lastShareCount=now;
+  const before=shares;shares++;store.set('hg-shares',shares);
+  const un=REWARDS.find(w=>before<w.n&&shares>=w.n);
+  toast(un?'🎁 '+L2('선물 열림: ','Presente liberado: ')+un.ic+' '+L2(un.ko,un.pt):L2('📣 공유 고마워요! 지금까지 '+shares+'번','📣 Obrigada por compartilhar! Total: '+shares));
+  if(tab==='me')renderMe();renderQLevels();renderSayList();
+}
+async function openShare(kind){
+  const text=shareText(kind);let blob=null;
+  try{blob=await makeCard(kind)}catch(e){}
+  const file=blob?new File([blob],kind==='name'?'meu-nome-coreano.png':'hangul-k.png',{type:'image/png'}):null;
+  try{
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text,title:'Hangul K'});addShare();return}
+  }catch(e){if(e&&e.name==='AbortError')return}
+  // 기기 공유가 안 되면: 이미지 + SNS 버튼
+  const url=blob?URL.createObjectURL(blob):'';const enc=encodeURIComponent(text);
+  $('shareBody').innerHTML=`
+    ${url?`<img src="${url}" alt="">`:''}
+    <p class="msg">${L2('이미지를 길게 눌러 저장한 다음 틱톡·인스타에 올려 주세요','Toque e segure a imagem para salvar e poste no TikTok/Instagram')}</p>
+    <div class="sns">
+      <a href="https://wa.me/?text=${enc}" target="_blank" rel="noopener" data-c>WhatsApp</a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}" target="_blank" rel="noopener" data-c>Facebook</a>
+      <a href="https://twitter.com/intent/tweet?text=${enc}" target="_blank" rel="noopener" data-c>X (Twitter)</a>
+      <button type="button" id="shCopy">📋 ${L2('글 복사','Copiar texto')}</button>
+      ${url?`<a href="${url}" download="${file.name}" data-c>⬇️ ${L2('이미지 저장','Salvar imagem')}</a>`:''}
+      <button type="button" id="shClose">${L2('닫기','Fechar')}</button>
+    </div>`;
+  $('shareSheet').hidden=false;
+  $('shareBody').querySelectorAll('[data-c]').forEach(a=>a.addEventListener('click',addShare));
+  $('shCopy').onclick=()=>{const done=()=>{$('shCopy').textContent='✅ '+L2('복사됨','Copiado');addShare()};
+    try{navigator.clipboard.writeText(text).then(done,()=>{toast(text)})}catch(e){toast(text)}};
+  $('shClose').onclick=()=>{$('shareSheet').hidden=true;if(url)setTimeout(()=>URL.revokeObjectURL(url),1000)};
+}
+$('shareSheet').addEventListener('click',e=>{if(e.target===$('shareSheet'))$('shareSheet').hidden=true});
 
 /* ---------- 시작 ---------- */
 $('langBtn').onclick=()=>{lang=lang==='ko'?'pt':'ko';store.set('hg-lang',lang);applyLang()};
