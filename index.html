@@ -1348,7 +1348,8 @@ function renderMe(){
       <button type="button" data-v="love" aria-pressed="false">💕 ${L2('좋아요','Elogio')}</button>
     </div>
     <textarea id="fbText" rows="4" maxlength="1500" placeholder="${L2('예: 퀴즈 3단에서 소리가 안 나와요','Ex.: No quiz nível 3 o som não toca')}"></textarea>
-    <button class="btn primary big wide" id="fbSend">✉️ ${L2('이메일로 보내기','Enviar por e-mail')}</button>
+    <button class="btn primary big wide" id="fbWa" style="background:#1F8F4E;border-color:#1F8F4E">💬 ${L2('왓츠앱으로 보내기','Enviar pelo WhatsApp')}</button>
+    <button class="btn big wide" id="fbSend">✉️ ${L2('이메일로 보내기','Enviar por e-mail')}</button>
     <p class="msg" style="text-align:left;margin-top:8px">${L2('이메일 앱이 안 열리면 이 주소로 보내 주세요:','Se o e-mail não abrir, envie para:')} <b style="user-select:all">${FEEDBACK_EMAIL}</b> <button type="button" class="btn" id="fbCopy" style="padding:4px 10px;font-size:13px">📋</button></p>
   </div>
   <button class="btn wide" id="onbAgain" style="margin-bottom:18px">📖 ${L2('사용 안내 다시 보기','Ver o tutorial de novo')}</button>`;
@@ -1362,6 +1363,10 @@ function renderMe(){
     const info=`\n\n---\nHangul K · ${navigator.userAgent.match(/Android [0-9.]+/)?.[0]||'web'} · XP ${stats().xp}`;
     location.href=`mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('[Hangul K] '+tag)}&body=${encodeURIComponent(txt+info)}`;
     toast(L2('이메일 앱에서 "보내기"를 눌러 주세요. 고마워요! 💕','Toque em "Enviar" no app de e-mail. Obrigada! 💕'))};
+  $('fbWa').onclick=()=>{const txt=$('fbText').value.trim();
+    if(!txt){toast(L2('내용을 먼저 써 주세요','Escreva sua mensagem primeiro'));$('fbText').focus();return}
+    const tag={bug:'🐞 Problema',idea:'💡 Ideia',love:'💕 Elogio'}[fbT];
+    const a=document.createElement('a');a.href=`https://wa.me/${FEEDBACK_WA}?text=${encodeURIComponent('[Hangul K] '+tag+'\n'+txt)}`;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()};
   $('fbCopy').onclick=()=>{try{navigator.clipboard.writeText(FEEDBACK_EMAIL).then(()=>toast(L2('주소를 복사했어요','E-mail copiado')),()=>{})}catch(e){}};
   $('onbAgain').onclick=()=>showOnb(true);
   $('nmForm').onsubmit=e=>{e.preventDefault();const v=$('nmIn').value.trim();if(!v)return;
@@ -1460,6 +1465,7 @@ async function openShare(kind){
 $('shareSheet').addEventListener('click',e=>{if(e.target===$('shareSheet'))$('shareSheet').hidden=true});
 
 const FEEDBACK_EMAIL='dabikim1@gmail.com';
+const FEEDBACK_WA='5511999098081';
 /* ---------- 처음 사용 안내 ---------- */
 const ONB=[
  {em:'한',ko:['한글, 같이 배워요!','소리 듣기부터 말하기, 노래까지. 포르투갈어로 쉽게 설명해 줘요.'],pt:['Vamos aprender coreano!','Dos sons das letras até falar e cantar. Tudo explicado em português.']},
