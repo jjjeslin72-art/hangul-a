@@ -159,6 +159,21 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .sns a,.sns button{display:block;text-align:center;text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:11px 6px;background:var(--paper);color:var(--ink);font-size:14px}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--sheet);
   padding:10px 16px;border-radius:12px;font-size:14px;max-width:90vw;text-align:center}
+.onb{position:fixed;inset:0;z-index:40;background:var(--paper);display:flex;flex-direction:column;
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.onb .skip{align-self:flex-end;background:none;border:0;color:var(--muted);font-size:15px;padding:6px}
+.onb .slide{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;max-width:420px;margin:0 auto;gap:14px}
+.onb .em{font-size:84px;line-height:1}
+.onb h3{font-family:var(--f-disp);font-size:26px;margin:0;text-wrap:balance}
+.onb p{margin:0;color:var(--muted);font-size:16px;line-height:1.55}
+.onb .dots{display:flex;justify-content:center;gap:8px;margin:12px 0}
+.onb .dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.onb .dots i.on{background:var(--seal);width:22px;border-radius:5px}
+.onb .langs{display:flex;gap:8px;justify-content:center}
+.fb textarea{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);resize:vertical}
+.fb .chips2{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.fb .chips2 button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:14px}
+.fb .chips2 button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
 /* builder */
 .formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
 .formula .op{color:var(--muted);font-size:20px}
@@ -417,7 +432,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------- 언어 ---------- */
-let lang=store.get('hg-lang','ko');
+let lang=store.get('hg-lang',null)||(/^ko/i.test(navigator.language||'')?'ko':'pt');
 const T={
  sub:{ko:'자음·모음부터 말하기까지',pt:'Aprenda o alfabeto coreano'},
  slow:{ko:'천천히',pt:'Devagar'},
@@ -1322,9 +1337,33 @@ function renderMe(){
   <div class="me-card" style="padding-top:6px">
     ${REWARDS.map(w=>{const on=shares>=w.n;return`<div class="rw${on?' on':''}"><div class="ic" aria-hidden="true">${w.ic}</div><div class="tx"><b>${L2(w.ko,w.pt)}</b><small>${L2(w.kd,w.pd)}</small></div><div class="st">${on?'✅ '+L2('받음','Liberado'):'🔒 '+Math.min(shares,w.n)+'/'+w.n}</div></div>`}).join('')}
     <button class="btn wide" id="shApp">📲 ${L2('친구에게 앱 알려 주기','Indicar o app para amigos')}</button>
-  </div>`;
+  </div>
+
+  <h2>💬 ${L2('의견 보내기','Envie sua opinião')}</h2>
+  <p class="lead">${L2('안 되는 것, 좋은 것, 원하는 기능을 알려 주세요. 앱을 만든 주야에게 바로 가요.','Conte o que não funciona, o que você gostou ou o que quer no app. Vai direto para a Juya, criadora do app.')}</p>
+  <div class="me-card fb">
+    <div class="chips2" role="group" id="fbType">
+      <button type="button" data-v="bug" aria-pressed="true">🐞 ${L2('안 돼요','Problema')}</button>
+      <button type="button" data-v="idea" aria-pressed="false">💡 ${L2('아이디어','Ideia')}</button>
+      <button type="button" data-v="love" aria-pressed="false">💕 ${L2('좋아요','Elogio')}</button>
+    </div>
+    <textarea id="fbText" rows="4" maxlength="1500" placeholder="${L2('예: 퀴즈 3단에서 소리가 안 나와요','Ex.: No quiz nível 3 o som não toca')}"></textarea>
+    <button class="btn primary big wide" id="fbSend">✉️ ${L2('이메일로 보내기','Enviar por e-mail')}</button>
+    <p class="msg" style="text-align:left;margin-top:8px">${L2('이메일 앱이 안 열리면 이 주소로 보내 주세요:','Se o e-mail não abrir, envie para:')} <b style="user-select:all">${FEEDBACK_EMAIL}</b> <button type="button" class="btn" id="fbCopy" style="padding:4px 10px;font-size:13px">📋</button></p>
+  </div>
+  <button class="btn wide" id="onbAgain" style="margin-bottom:18px">📖 ${L2('사용 안내 다시 보기','Ver o tutorial de novo')}</button>`;
   $('shSkill').onclick=()=>openShare('skill');
   $('shApp').onclick=()=>openShare('app');
+  let fbT='bug';
+  $('fbType').querySelectorAll('button').forEach(b=>b.onclick=()=>{fbT=b.dataset.v;$('fbType').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+  $('fbSend').onclick=()=>{const txt=$('fbText').value.trim();
+    if(!txt){toast(L2('내용을 먼저 써 주세요','Escreva sua mensagem primeiro'));$('fbText').focus();return}
+    const tag={bug:'Problema',idea:'Ideia',love:'Elogio'}[fbT];
+    const info=`\n\n---\nHangul K · ${navigator.userAgent.match(/Android [0-9.]+/)?.[0]||'web'} · XP ${stats().xp}`;
+    location.href=`mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('[Hangul K] '+tag)}&body=${encodeURIComponent(txt+info)}`;
+    toast(L2('이메일 앱에서 "보내기"를 눌러 주세요. 고마워요! 💕','Toque em "Enviar" no app de e-mail. Obrigada! 💕'))};
+  $('fbCopy').onclick=()=>{try{navigator.clipboard.writeText(FEEDBACK_EMAIL).then(()=>toast(L2('주소를 복사했어요','E-mail copiado')),()=>{})}catch(e){}};
+  $('onbAgain').onclick=()=>showOnb(true);
   $('nmForm').onsubmit=e=>{e.preventDefault();const v=$('nmIn').value.trim();if(!v)return;
     const ko=nameToHangul(v);store.set('hg-name',v);store.set('hg-name-ko',ko);updChip();renderMe();speak(ko);
     setTimeout(()=>{const o=$('nmOut');o&&o.scrollIntoView({behavior:'smooth',block:'center'})},50)};
@@ -1420,6 +1459,38 @@ async function openShare(kind){
 }
 $('shareSheet').addEventListener('click',e=>{if(e.target===$('shareSheet'))$('shareSheet').hidden=true});
 
+const FEEDBACK_EMAIL='dabikim1@gmail.com';
+/* ---------- 처음 사용 안내 ---------- */
+const ONB=[
+ {em:'한',ko:['한글, 같이 배워요!','소리 듣기부터 말하기, 노래까지. 포르투갈어로 쉽게 설명해 줘요.'],pt:['Vamos aprender coreano!','Dos sons das letras até falar e cantar. Tudo explicado em português.']},
+ {em:'🔊',ko:['① 소리 → 조합','ㄱ, ㅏ 를 누르면 소리가 나요. 조합 탭에서 ㄱ + ㅏ = 가 를 만들어 봐요.'],pt:['① Sons → Montar','Toque nas letras para ouvir. Na aba Montar, junte ㄱ + ㅏ = 가 (Ga).']},
+ {em:'✎',ko:['② 쓰기 → 퀴즈','손가락으로 따라 쓰고 별을 받아요. 퀴즈는 1단부터 K-POP, 드라마까지!'],pt:['② Escrever → Quiz','Trace as letras com o dedo e ganhe estrelas. Quiz do nível 1 até K-pop e doramas!']},
+ {em:'🎤',ko:['③ 말하기 → 내 이름','마이크로 말하면 발음을 고쳐 줘요. ★ 나 탭에서 내 이름을 한글로 바꿔 보세요!'],pt:['③ Falar → Meu nome','Fale no microfone e o app corrige a pronúncia. Na aba ★ Eu, veja seu nome em coreano!']},
+ {em:'🔥',ko:['매일 5분이면 충분해요','매일 들어오면 🔥 기록이 쌓여요. 친구에게 공유하면 선물도 받아요 🎁'],pt:['5 minutos por dia já basta','Volte todo dia para aumentar seu 🔥. Compartilhe com amigos e ganhe presentes 🎁']}
+];
+let onbI=0;
+function showOnb(force){
+  if(!force){let seen=false;try{seen=localStorage.getItem('hg-onb')==='1'}catch(e){}if(seen)return}
+  onbI=0;let el=$('onbEl');
+  if(!el){el=document.createElement('div');el.id='onbEl';el.className='onb';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');document.body.appendChild(el)}
+  el.hidden=false;paintOnb();
+}
+function closeOnb(){try{localStorage.setItem('hg-onb','1')}catch(e){}const el=$('onbEl');if(el)el.hidden=true}
+function paintOnb(){
+  const sl=ONB[onbI],tx=sl[lang],last=onbI===ONB.length-1,el=$('onbEl');
+  el.innerHTML=`<button class="skip" id="onbSkip">${L2('건너뛰기','Pular')}</button>
+    <div class="slide">
+      <div class="em" ${sl.em==='한'?'style="width:110px;height:110px;border-radius:26px;background:var(--seal);color:#fff;display:grid;place-items:center;font-family:var(--f-glyph);font-weight:700;font-size:64px"':''}>${sl.em}</div>
+      <h3>${tx[0]}</h3><p>${tx[1]}</p>
+      ${onbI===0?`<div class="langs"><button class="pill" data-l="pt" aria-pressed="${lang==='pt'}">Português</button><button class="pill" data-l="ko" aria-pressed="${lang==='ko'}">한국어</button></div>`:''}
+    </div>
+    <div class="dots">${ONB.map((_,i)=>`<i class="${i===onbI?'on':''}"></i>`).join('')}</div>
+    <button class="btn primary big wide" id="onbNext">${last?L2('시작하기','Começar'):L2('다음','Próximo')} ▶</button>`;
+  $('onbSkip').onclick=closeOnb;
+  $('onbNext').onclick=()=>{if(last){closeOnb();go('sound')}else{onbI++;paintOnb()}};
+  el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{lang=b.dataset.l;store.set('hg-lang',lang);applyLang();paintOnb()});
+}
+
 /* ---------- 시작 ---------- */
 $('langBtn').onclick=()=>{lang=lang==='ko'?'pt':'ko';store.set('hg-lang',lang);applyLang()};
 $('slowBtn').setAttribute('aria-pressed',slow);
@@ -1427,6 +1498,7 @@ $('slowBtn').onclick=()=>{slow=!slow;store.set('hg-slow',slow);$('slowBtn').setA
 // 첫 화면에서는 소리 없이 그리기
 (function initBuild(){const s=compose(bC,bV,bJ);$('fC').textContent=bC;$('fV').textContent=bV;$('fJ').textContent='·';$('bResT').textContent=s;$('bRom').textContent='Ga'})();
 applyLang();
+showOnb(false);
 setTimeout(()=>{if('speechSynthesis' in window&&speechSynthesis.getVoices().length&&!koVoice){const n=document.createElement('div');n.className='note';n.textContent=t('noVoice');$('p-sound').insertBefore(n,$('jDetail'))}},1500);
 })();
 </script>
