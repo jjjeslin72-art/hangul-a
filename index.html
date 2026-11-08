@@ -143,7 +143,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .nm-row{display:flex;gap:8px}
 .nm-row input{flex:1;min-width:0;font:inherit;font-size:17px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
 .nm-out{text-align:center;margin-top:14px}
-.nm-out .big{font-family:var(--f-glyph);font-size:52px;font-weight:700;line-height:1.2;word-break:keep-all}
+.nm-out .nmbig{font-family:var(--f-glyph);font-size:52px;font-weight:700;line-height:1.2;word-break:keep-all}
 .nm-out .pr{color:var(--seal);font-weight:700}
 .rw{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .rw .ic{font-size:26px}
@@ -180,7 +180,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .memo-it .ko{font-family:var(--f-glyph);font-size:24px;font-weight:700;line-height:1.2;word-break:keep-all}
 .memo-it small{display:block;font-size:12.5px;color:var(--muted)}
 .memo-it .pr{color:var(--seal);font-weight:700}
-.memo-it .acts{display:flex;gap:4px;flex:none}
+.memo-it .acts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;flex:none;max-width:84px}
 .memo-it .acts button{border:1px solid var(--line);background:var(--sheet);border-radius:8px;width:38px;height:38px;font-size:17px}
 h1{white-space:nowrap}
 @media (max-width:440px){h1 small{display:none}h1{font-size:20px}.hdr-tools .pill{padding:6px 9px}header{gap:8px}}
@@ -329,6 +329,7 @@ h1{white-space:nowrap}
     <button class="btn" id="wPrev" aria-label="이전">◀</button>
     <div class="row">
       <button class="btn" id="wClear" data-t="clear"></button>
+      <button class="btn" id="wOrder">✍️</button>
       <button class="btn" id="wPlay" data-t="listen"></button>
       <button class="btn primary" id="wCheck" data-t="check"></button>
     </div>
@@ -835,6 +836,7 @@ function sizePad(){
   paintGuide();
 }
 function paintGuide(){
+  guide._tok=(guide._tok||0)+1;gx.setTransform(1,0,0,1,0,0);
   gx.clearRect(0,0,padPx,padPx);
   if($('wGuide').checked)drawGlyph(gx,padPx,writeList()[wIdx],{fill:cssVar('--line')});
 }
@@ -900,6 +902,9 @@ async function playParts(){
   if(id===seqId)renderParts(list,-1);
 }
 $('wPlay').onclick=playParts;
+$('wOrder').onclick=()=>{ix.clearRect(0,0,padPx,padPx);drawn=false;$('wStars').textContent='';
+  $('wMsg').textContent=L2('빨간 번호 순서대로 써요','Siga a ordem dos números');
+  animateWriting(guide,writeList()[wIdx],{fixed:true,maxCell:9999})};
 $('wPrev').onclick=()=>{const L=writeList();wIdx=(wIdx-1+L.length)%L.length;loadW()};
 $('wNext').onclick=()=>{const L=writeList();wIdx=(wIdx+1)%L.length;loadW()};
 $('wGuide').onchange=paintGuide;
@@ -1172,6 +1177,7 @@ const NAME_DICT={ana:'아나',maria:'마리아',joao:'주앙',jose:'조제',pedr
  beatrice:'베아트리스',benicio:'베니시우',igreja:'이그레자'};
 function nameToHangul(raw){
   return raw.trim().split(/\s+/).filter(Boolean).map(w=>{
+    if(/[가-힣]/.test(w))return w.replace(/[^가-힣]/g,'');
     const key=w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     if(NAME_DICT[key])return NAME_DICT[key];
     return wordToHangul(w);
@@ -1331,11 +1337,13 @@ function renderMe(){
   <div class="me-card">
     <form class="nm-row" id="nmForm"><input id="nmIn" maxlength="40" autocomplete="off" placeholder="Beatriz" value="${esc(nmIn)}" aria-label="${L2('이름','Nome')}"><button class="btn primary" type="submit">${L2('바꾸기','Ver')}</button></form>
     <div class="nm-out" id="nmOut" ${nmKo?'':'hidden'}>
-      <div class="big">${esc(nmKo)}</div>
+      <div class="nmbig">${esc(nmKo)}</div>
+      <canvas id="nmAnim" style="width:100%;display:block;margin:6px 0" aria-label="${L2('쓰는 순서','Ordem dos traços')}"></canvas>
       <div class="pr">🇧🇷 ${esc(pron)}</div>
       <div class="msg">${L2('자동 변환이라 조금 다를 수 있어요','Conversão automática, pode variar um pouco')}</div>
       <div class="row" style="justify-content:center;margin-top:10px">
         <button class="btn" id="nmPlay">🔊 ${L2('듣기','Ouvir')}</button>
+        <button class="btn" id="nmOrder">✍️ ${L2('쓰는 순서','Ordem')}</button>
         <button class="btn" id="nmWrite">✎ ${L2('따라 쓰기','Escrever')}</button>
       </div>
       <button class="btn primary big wide" id="shName">📣 ${L2('이름 카드 공유하기','Compartilhar meu nome')}</button>
@@ -1392,9 +1400,10 @@ function renderMe(){
   const copy=(txt,msg)=>{try{navigator.clipboard.writeText(txt).then(()=>toast(msg),()=>toast(txt))}catch(e){toast(txt)}};
   const paintMemo=()=>{const it=memoItems();
     $('memoList').innerHTML=it.map((o,i)=>`<div class="memo-it"><div class="nm"><div class="ko">${esc(o.ko)}</div><small><b>${esc(o.nm)}</b> · <span class="pr">${esc(autoPron(o.ko))}</span></small></div>
-      <div class="acts"><button data-a="say" data-i="${i}" aria-label="${L2('듣기','Ouvir')}">🔊</button><button data-a="copy" data-i="${i}" aria-label="${L2('답글 복사','Copiar resposta')}">📋</button><button data-a="card" data-i="${i}" aria-label="${L2('카드 공유','Compartilhar cartão')}">📣</button></div></div>`).join('');
+      <div class="acts"><button data-a="say" data-i="${i}" aria-label="${L2('듣기','Ouvir')}">🔊</button><button data-a="order" data-i="${i}" aria-label="${L2('쓰는 순서','Ordem dos traços')}">✍️</button><button data-a="copy" data-i="${i}" aria-label="${L2('답글 복사','Copiar resposta')}">📋</button><button data-a="card" data-i="${i}" aria-label="${L2('카드 공유','Compartilhar cartão')}">📣</button></div></div>`).join('');
     $('memoList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const o=it[+b.dataset.i];
       if(b.dataset.a==='say')speak(o.ko);
+      else if(b.dataset.a==='order')showOrder(o);
       else if(b.dataset.a==='copy')copy(`${o.nm} em coreano é ${o.ko} (${autoPron(o.ko)}) 💕 Ouça a pronúncia e aprenda a escrever no app grátis Hangul K, link no perfil! 🇰🇷`,L2('답글을 복사했어요','Resposta copiada'));
       else openShare('name',o)})};
   $('memoIn').oninput=()=>{clearTimeout(memoT);memoT=setTimeout(()=>{store.set('hg-memo',$('memoIn').value);paintMemo()},250)};
@@ -1406,6 +1415,8 @@ function renderMe(){
     setTimeout(()=>{const o=$('nmOut');o&&o.scrollIntoView({behavior:'smooth',block:'center'})},50)};
   if(nmKo){
     $('nmPlay').onclick=()=>speak(nmKo);
+    const playNm=()=>animateWriting($('nmAnim'),nmKo,{maxCell:90});
+    $('nmOrder').onclick=playNm;requestAnimationFrame(playNm);
     $('nmWrite').onclick=()=>{wSet='n';wIdx=0;syncSets();go('write');loadW()};
     $('shName').onclick=()=>openShare('name');
   }
@@ -1528,6 +1539,125 @@ function paintOnb(){
   $('onbSkip').onclick=closeOnb;
   $('onbNext').onclick=()=>{if(last){closeOnb();go('sound')}else{onbI++;paintOnb()}};
   el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{lang=b.dataset.l;store.set('hg-lang',lang);applyLang();paintOnb()});
+}
+
+/* ---------- 쓰는 순서(획순) 애니메이션 ---------- */
+const CIRC=(cx,cy,rx,ry)=>{const p=[];for(let i=0;i<=28;i++){const a=-Math.PI/2-i/28*Math.PI*2;p.push([cx+rx*Math.cos(a),cy+ry*Math.sin(a)])}return p};
+const JSTK={
+ 'ㄱ':[[[.15,.2],[.85,.2],[.8,.9]]],
+ 'ㄴ':[[[.2,.12],[.2,.82],[.88,.82]]],
+ 'ㄷ':[[[.2,.2],[.85,.2]],[[.2,.2],[.2,.82],[.88,.82]]],
+ 'ㄹ':[[[.18,.14],[.82,.14],[.82,.47]],[[.18,.47],[.82,.47]],[[.18,.47],[.18,.86],[.86,.86]]],
+ 'ㅁ':[[[.2,.18],[.2,.84]],[[.2,.18],[.8,.18],[.8,.84]],[[.2,.84],[.8,.84]]],
+ 'ㅂ':[[[.22,.12],[.22,.86]],[[.78,.12],[.78,.86]],[[.22,.48],[.78,.48]],[[.22,.86],[.78,.86]]],
+ 'ㅅ':[[[.5,.12],[.14,.88]],[[.5,.42],[.86,.88]]],
+ 'ㅇ':[CIRC(.5,.5,.34,.36)],
+ 'ㅈ':[[[.15,.18],[.85,.18]],[[.55,.18],[.14,.88]],[[.47,.5],[.86,.88]]],
+ 'ㅊ':[[[.4,.02],[.6,.12]],[[.15,.3],[.85,.3]],[[.55,.3],[.14,.9]],[[.47,.58],[.86,.9]]],
+ 'ㅋ':[[[.15,.2],[.85,.2],[.8,.9]],[[.15,.53],[.82,.53]]],
+ 'ㅌ':[[[.2,.18],[.85,.18]],[[.2,.5],[.8,.5]],[[.2,.18],[.2,.84],[.88,.84]]],
+ 'ㅍ':[[[.12,.16],[.88,.16]],[[.36,.16],[.32,.82]],[[.64,.16],[.68,.82]],[[.1,.82],[.9,.82]]],
+ 'ㅎ':[[[.4,.02],[.6,.12]],[[.15,.27],[.85,.27]],CIRC(.5,.64,.24,.22)],
+ 'ㅏ':[[[.35,.04],[.35,.96]],[[.35,.5],[.75,.5]]],
+ 'ㅑ':[[[.35,.04],[.35,.96]],[[.35,.37],[.75,.37]],[[.35,.63],[.75,.63]]],
+ 'ㅓ':[[[.25,.5],[.65,.5]],[[.65,.04],[.65,.96]]],
+ 'ㅕ':[[[.25,.37],[.65,.37]],[[.25,.63],[.65,.63]],[[.65,.04],[.65,.96]]],
+ 'ㅣ':[[[.5,.04],[.5,.96]]],
+ 'ㅐ':[[[.28,.04],[.28,.96]],[[.28,.5],[.55,.5]],[[.72,.04],[.72,.96]]],
+ 'ㅒ':[[[.28,.04],[.28,.96]],[[.28,.37],[.55,.37]],[[.28,.63],[.55,.63]],[[.72,.04],[.72,.96]]],
+ 'ㅔ':[[[.18,.5],[.45,.5]],[[.45,.04],[.45,.96]],[[.74,.04],[.74,.96]]],
+ 'ㅖ':[[[.18,.37],[.45,.37]],[[.18,.63],[.45,.63]],[[.45,.04],[.45,.96]],[[.74,.04],[.74,.96]]],
+ 'ㅗ':[[[.5,.12],[.5,.55]],[[.08,.55],[.92,.55]]],
+ 'ㅛ':[[[.36,.12],[.36,.55]],[[.64,.12],[.64,.55]],[[.08,.55],[.92,.55]]],
+ 'ㅜ':[[[.08,.35],[.92,.35]],[[.5,.35],[.5,.88]]],
+ 'ㅠ':[[[.08,.35],[.92,.35]],[[.36,.35],[.36,.88]],[[.64,.35],[.64,.88]]],
+ 'ㅡ':[[[.08,.5],[.92,.5]]]
+};
+const DBLJ={'ㄲ':'ㄱ','ㄸ':'ㄷ','ㅃ':'ㅂ','ㅆ':'ㅅ','ㅉ':'ㅈ'};
+const CMPV={'ㅘ':['ㅗ','ㅏ'],'ㅙ':['ㅗ','ㅐ'],'ㅚ':['ㅗ','ㅣ'],'ㅝ':['ㅜ','ㅓ'],'ㅞ':['ㅜ','ㅔ'],'ㅟ':['ㅜ','ㅣ'],'ㅢ':['ㅡ','ㅣ']};
+const CMPF={'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄶ':['ㄴ','ㅎ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅀ':['ㄹ','ㅎ'],'ㅄ':['ㅂ','ㅅ']};
+const VERT=new Set(['ㅏ','ㅑ','ㅓ','ㅕ','ㅣ','ㅐ','ㅒ','ㅔ','ㅖ']);
+function place(stk,b){return stk.map(s=>s.map(([x,y])=>[b[0]+x*b[2],b[1]+y*b[3]]))}
+function jamoStk(j,b){
+  if(JSTK[j])return place(JSTK[j],b);
+  if(DBLJ[j]){const h=b[2]/2;return[...place(JSTK[DBLJ[j]],[b[0],b[1],h*1.02,b[3]]),...place(JSTK[DBLJ[j]],[b[0]+h*.98,b[1],h*1.02,b[3]])]}
+  if(CMPF[j]){const h=b[2]/2;return[...jamoStk(CMPF[j][0],[b[0],b[1],h,b[3]]),...jamoStk(CMPF[j][1],[b[0]+h,b[1],h,b[3]])]}
+  return[];
+}
+// 한 글자의 획들 (0~1 칸 안 좌표)
+function charStrokes(ch){
+  if(JSTK[ch]||DBLJ[ch]||CMPV[ch]||CMPF[ch]){
+    if(CMPV[ch])return[...jamoStk(CMPV[ch][0],[.05,.3,.6,.65]),...jamoStk(CMPV[ch][1],[.55,.08,.4,.86])];
+    return jamoStk(ch,[.14,.14,.72,.72]);
+  }
+  const d=decompose(ch);if(!d)return[];
+  const [c,v,f]=d,hasF=!!f;let out=[];
+  if(VERT.has(v)){
+    out=jamoStk(c,hasF?[.06,.06,.5,.48]:[.06,.14,.5,.72]);
+    out=out.concat(jamoStk(v,hasF?[.5,.02,.46,.6]:[.5,.04,.46,.92]));
+  }else if(CMPV[v]){
+    out=jamoStk(c,hasF?[.06,.04,.48,.34]:[.06,.06,.48,.42]);
+    out=out.concat(jamoStk(CMPV[v][0],hasF?[.02,.32,.62,.32]:[.02,.4,.62,.52]));
+    out=out.concat(jamoStk(CMPV[v][1],hasF?[.56,.02,.42,.6]:[.56,.04,.42,.92]));
+  }else{
+    out=jamoStk(c,hasF?[.2,.02,.6,.34]:[.2,.04,.6,.44]);
+    out=out.concat(jamoStk(v,hasF?[.04,.3,.92,.34]:[.04,.42,.92,.5]));
+  }
+  if(hasF)out=out.concat(jamoStk(f,[.16,.64,.68,.34]));
+  return out;
+}
+const segLen=s=>{let l=0;for(let i=1;i<s.length;i++)l+=Math.hypot(s[i][0]-s[i-1][0],s[i][1]-s[i-1][1]);return l||.01};
+// canvas에 text를 한 획씩 순서대로 그리기
+function animateWriting(canvas,text,opt={}){
+  const tok=(canvas._tok||0)+1;canvas._tok=tok;
+  const chars=[...String(text)];
+  const dpr=window.devicePixelRatio||1,Wc=canvas.clientWidth||canvas.width;
+  const n=Math.max(1,chars.length);
+  const cell=Math.min(opt.maxCell||110,Wc/n);
+  const Hc=opt.fixed?canvas.clientHeight||Wc:cell*1.08;
+  if(!opt.fixed)canvas.style.height=Hc+'px';
+  canvas.width=Math.round(Wc*dpr);canvas.height=Math.round(Hc*dpr);
+  const x=canvas.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  const off=(Wc-cell*n)/2,top=(Hc-cell)/2;
+  const all=[],meta=[];chars.forEach((ch,i)=>{charStrokes(ch).forEach((s,k)=>{all.push(s.map(([a,b])=>[off+i*cell+a*cell,top+b*cell]));meta.push({ci:i,k:k+1})})});
+  const ink=opt.ink||cssVar('--ink'),lead=opt.lead||cssVar('--seal'),faint=opt.faint||cssVar('--line');
+  const lw=Math.max(3,cell*.075);
+  const path=(s,t)=>{const L=segLen(s)*t;let acc=0;x.beginPath();x.moveTo(s[0][0],s[0][1]);
+    for(let i=1;i<s.length;i++){const d=Math.hypot(s[i][0]-s[i-1][0],s[i][1]-s[i-1][1]);
+      if(acc+d>=L){const r=(L-acc)/d;x.lineTo(s[i-1][0]+(s[i][0]-s[i-1][0])*r,s[i-1][1]+(s[i][1]-s[i-1][1])*r);break}
+      x.lineTo(s[i][0],s[i][1]);acc+=d}x.stroke()};
+  const num=(s,k,col)=>{const r=Math.min(16,Math.max(7,cell*.07));x.fillStyle=col;x.beginPath();x.arc(s[0][0],s[0][1],r,0,7);x.fill();
+    x.fillStyle='#fff';x.font=`700 ${Math.round(r*1.25)}px system-ui,sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(k,s[0][0],s[0][1]+.5)};
+  const speed=(opt.speed||1)*cell*(slow?1.4:2.4)/1000;// px per ms
+  let si=0,start=null,pause=0;
+  const draw=(now)=>{
+    if(canvas._tok!==tok)return;
+    if(start==null)start=now;
+    x.clearRect(0,0,Wc,Hc);x.lineCap='round';x.lineJoin='round';x.lineWidth=lw;
+    if(opt.grid!==false){x.strokeStyle=faint;all.forEach(s=>path(s,1))}
+    x.strokeStyle=ink;for(let k=0;k<si;k++)path(all[k],1);
+    let done=si>=all.length;
+    if(!done){const s=all[si],len=segLen(s),t=Math.min(1,(now-start)/(len/speed));
+      x.strokeStyle=lead;path(s,t);num(s,meta[si].k,lead);
+      if(t>=1){if(!pause)pause=now;if(now-pause>140){si++;start=null;pause=0}}}
+    if(opt.numbers!==false){const cc=meta[Math.min(si,all.length-1)]?.ci;for(let k=0;k<Math.min(si,all.length);k++)if(meta[k].ci===cc)num(all[k],meta[k].k,cssVar('--accent'))}
+    if(!done)requestAnimationFrame(draw);else if(opt.onDone)opt.onDone();
+  };
+  requestAnimationFrame(draw);
+  return()=>{canvas._tok++};
+}
+
+function showOrder(o){
+  $('shareBody').innerHTML=`<div style="text-align:center"><div style="font-family:var(--f-glyph);font-size:28px;font-weight:700">${esc(o.ko)}</div>
+    <div class="msg">${esc(o.nm)} · <b style="color:var(--seal)">${esc(autoPron(o.ko))}</b></div></div>
+    <canvas id="ordCv" style="width:100%;display:block;margin:10px 0"></canvas>
+    <p class="msg">${L2('빨간 번호 순서대로 써요','Siga a ordem dos números')}</p>
+    <div class="sns"><button type="button" id="ordAgain">✍️ ${L2('다시 보기','Ver de novo')}</button><button type="button" id="ordSay">🔊 ${L2('듣기','Ouvir')}</button>
+    <button type="button" id="ordClose" style="grid-column:1/-1">${L2('닫기','Fechar')}</button></div>`;
+  $('shareSheet').hidden=false;
+  const play=()=>animateWriting($('ordCv'),o.ko,{maxCell:120});
+  requestAnimationFrame(play);$('ordAgain').onclick=play;$('ordSay').onclick=()=>speak(o.ko);
+  $('ordClose').onclick=()=>{$('ordCv')._tok++;$('shareSheet').hidden=true};
 }
 
 /* ---------- 시작 ---------- */
