@@ -174,6 +174,16 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accen
 .fb .chips2{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .fb .chips2 button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:14px}
 .fb .chips2 button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.memo-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.memo-it{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper)}
+.memo-it .nm{flex:1;min-width:0}
+.memo-it .ko{font-family:var(--f-glyph);font-size:24px;font-weight:700;line-height:1.2;word-break:keep-all}
+.memo-it small{display:block;font-size:12.5px;color:var(--muted)}
+.memo-it .pr{color:var(--seal);font-weight:700}
+.memo-it .acts{display:flex;gap:4px;flex:none}
+.memo-it .acts button{border:1px solid var(--line);background:var(--sheet);border-radius:8px;width:38px;height:38px;font-size:17px}
+h1{white-space:nowrap}
+@media (max-width:440px){h1 small{display:none}h1{font-size:20px}.hdr-tools .pill{padding:6px 9px}header{gap:8px}}
 /* builder */
 .formula{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px;font-family:var(--f-glyph);font-size:26px}
 .formula .op{color:var(--muted);font-size:20px}
@@ -1332,6 +1342,14 @@ function renderMe(){
     </div>
   </div>
 
+  <h2>📝 ${L2('이름 메모장','Bloco de nomes')}</h2>
+  <p class="lead">${L2('친구나 틱톡 댓글 이름을 한 줄에 하나씩 쓰면 바로 한글로 바꿔 줘요. 답글 복사, 카드 공유도 돼요.','Escreva um nome por linha (amigos, comentários do TikTok) e veja todos em coreano. Copie a resposta ou compartilhe o cartão.')}</p>
+  <div class="me-card">
+    <textarea id="memoIn" rows="4" style="width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);resize:vertical" placeholder="Beatriz&#10;João Pedro&#10;Larissa">${esc(store.get('hg-memo',''))}</textarea>
+    <div class="row" style="margin-top:6px"><button class="btn" id="memoCopyAll">📋 ${L2('전체 복사','Copiar tudo')}</button><button class="btn" id="memoClear">🗑 ${L2('지우기','Limpar')}</button></div>
+    <div class="memo-list" id="memoList"></div>
+  </div>
+
   <h2>${L2('공유하고 선물 받기','Compartilhe e ganhe presentes')} 🎁</h2>
   <p class="lead">${L2('앱을 친구에게 알려 주면 선물이 열려요. 지금까지 ','Divulgue o app e desbloqueie presentes. Você já compartilhou ')}<b>${shares}</b>${L2('번 공유했어요.',' vez(es).')}</p>
   <div class="me-card" style="padding-top:6px">
@@ -1369,6 +1387,20 @@ function renderMe(){
     const a=document.createElement('a');a.href=`https://wa.me/${FEEDBACK_WA}?text=${encodeURIComponent('[Hangul K] '+tag+'\n'+txt)}`;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()};
   $('fbCopy').onclick=()=>{try{navigator.clipboard.writeText(FEEDBACK_EMAIL).then(()=>toast(L2('주소를 복사했어요','E-mail copiado')),()=>{})}catch(e){}};
   $('onbAgain').onclick=()=>showOnb(true);
+  let memoT=null;
+  const memoItems=()=>$('memoIn').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,50).map(nm=>({nm,ko:nameToHangul(nm)}));
+  const copy=(txt,msg)=>{try{navigator.clipboard.writeText(txt).then(()=>toast(msg),()=>toast(txt))}catch(e){toast(txt)}};
+  const paintMemo=()=>{const it=memoItems();
+    $('memoList').innerHTML=it.map((o,i)=>`<div class="memo-it"><div class="nm"><div class="ko">${esc(o.ko)}</div><small><b>${esc(o.nm)}</b> · <span class="pr">${esc(autoPron(o.ko))}</span></small></div>
+      <div class="acts"><button data-a="say" data-i="${i}" aria-label="${L2('듣기','Ouvir')}">🔊</button><button data-a="copy" data-i="${i}" aria-label="${L2('답글 복사','Copiar resposta')}">📋</button><button data-a="card" data-i="${i}" aria-label="${L2('카드 공유','Compartilhar cartão')}">📣</button></div></div>`).join('');
+    $('memoList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const o=it[+b.dataset.i];
+      if(b.dataset.a==='say')speak(o.ko);
+      else if(b.dataset.a==='copy')copy(`${o.nm} em coreano é ${o.ko} (${autoPron(o.ko)}) 💕 Ouça a pronúncia e aprenda a escrever no app grátis Hangul K, link no perfil! 🇰🇷`,L2('답글을 복사했어요','Resposta copiada'));
+      else openShare('name',o)})};
+  $('memoIn').oninput=()=>{clearTimeout(memoT);memoT=setTimeout(()=>{store.set('hg-memo',$('memoIn').value);paintMemo()},250)};
+  $('memoCopyAll').onclick=()=>{const it=memoItems();if(!it.length)return;copy(it.map(o=>`${o.nm} → ${o.ko} (${autoPron(o.ko)})`).join('\n'),L2('전체를 복사했어요','Lista copiada'))};
+  $('memoClear').onclick=()=>{$('memoIn').value='';store.set('hg-memo','');paintMemo()};
+  paintMemo();
   $('nmForm').onsubmit=e=>{e.preventDefault();const v=$('nmIn').value.trim();if(!v)return;
     const ko=nameToHangul(v);store.set('hg-name',v);store.set('hg-name-ko',ko);updChip();renderMe();speak(ko);
     setTimeout(()=>{const o=$('nmOut');o&&o.scrollIntoView({behavior:'smooth',block:'center'})},50)};
@@ -1383,7 +1415,7 @@ function wrapText(ctx,text,x,y,maxW,lh){const words=String(text).split(' ');let 
   for(const w of words){const t2=line?line+' '+w:w;if(ctx.measureText(t2).width>maxW&&line){ctx.fillText(line,x,yy);line=w;yy+=lh}else line=t2}
   if(line)ctx.fillText(line,x,yy);return yy}
 function fitFont(ctx,text,weight,family,max,maxW){let sz=max;do{ctx.font=`${weight} ${sz}px ${family}`;if(ctx.measureText(text).width<=maxW)break;sz-=6}while(sz>40);return sz}
-async function makeCard(kind){
+async function makeCard(kind,ov){
   try{await Promise.all([document.fonts.load('700 100px "Noto Sans KR"'),document.fonts.load('700 60px "Gowun Batang"')])}catch(e){}
   const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
   const gold=shares>=1;
@@ -1400,8 +1432,8 @@ async function makeCard(kind){
   x.textAlign='center';
   const st=stats(),rk=RANKS[rankOf(st.xp)];
   if(kind==='name'){
-    const ko=store.get('hg-name-ko',''),nm=store.get('hg-name','');
-    x.fillStyle=C.mut;x.font=`500 44px ${KR}`;x.fillText('Meu nome em coreano é',W/2,400);
+    const ko=ov?ov.ko:store.get('hg-name-ko',''),nm=ov?ov.nm:store.get('hg-name','');
+    x.fillStyle=C.mut;x.font=`500 44px ${KR}`;x.fillText(ov?'Seu nome em coreano é':'Meu nome em coreano é',W/2,400);
     x.fillStyle=C.box;x.beginPath();x.roundRect?x.roundRect(90,460,W-180,420,40):x.rect(90,460,W-180,420);x.fill();
     const sz=fitFont(x,ko,700,KR,230,W-260);x.fillStyle=C.fg;x.font=`700 ${sz}px ${KR}`;x.fillText(ko,W/2,640);
     x.fillStyle=C.seal;x.font=`700 50px ${KR}`;x.fillText(autoPron(ko),W/2,800);
@@ -1423,8 +1455,9 @@ async function makeCard(kind){
   x.font=`500 32px ${KR}`;x.fillText(SHARE_URL_SHORT,W/2,1240);
   return await new Promise(res=>c.toBlob(b=>res(b),'image/png'));
 }
-function shareText(kind){
+function shareText(kind,ov){
   const st=stats(),rk=RANKS[rankOf(st.xp)];
+  if(ov)return`${ov.nm} em coreano é ${ov.ko} (${autoPron(ov.ko)}) 💕 Ouça a pronúncia e aprenda a escrever no app grátis Hangul K 👉 ${SHARE_URL} #seunomeemcoreano #coreano #hangul`;
   if(kind==='name'){const ko=store.get('hg-name-ko','');return`Meu nome em coreano é ${ko} (${autoPron(ko)})! 🇰🇷✍️ Descubra o seu no app grátis Hangul K 👉 ${SHARE_URL} #coreano #hangul #kpop #dorama`}
   if(kind==='app')return`Estou aprendendo coreano com o app grátis Hangul K! 🇰🇷 Sons, escrita, quiz, pronúncia e karaokê de K-pop. Venha também 👉 ${SHARE_URL} #coreano #aprendercoreano #hangul #kpop`;
   return`Meu nível de coreano no Hangul K: ${rk.ic} ${rk.pt} (XP ${st.xp}) · 🔥 ${st.streak} dia(s) seguidos! Aprenda grátis também 👉 ${SHARE_URL} #coreano #hangul #kpop #dorama`;
@@ -1436,9 +1469,9 @@ function addShare(){const now=Date.now();if(now-lastShareCount<4000)return;lastS
   toast(un?'🎁 '+L2('선물 열림: ','Presente liberado: ')+un.ic+' '+L2(un.ko,un.pt):L2('📣 공유 고마워요! 지금까지 '+shares+'번','📣 Obrigada por compartilhar! Total: '+shares));
   if(tab==='me')renderMe();renderQLevels();renderSayList();
 }
-async function openShare(kind){
-  const text=shareText(kind);let blob=null;
-  try{blob=await makeCard(kind)}catch(e){}
+async function openShare(kind,ov){
+  const text=shareText(kind,ov);let blob=null;
+  try{blob=await makeCard(kind,ov)}catch(e){}
   const file=blob?new File([blob],kind==='name'?'meu-nome-coreano.png':'hangul-k.png',{type:'image/png'}):null;
   try{
     if(file&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text,title:'Hangul K'});addShare();return}
