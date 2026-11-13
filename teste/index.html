@@ -39,43 +39,41 @@ h1{font-size:24px;line-height:1.2;margin:0}
     <div class="icon" aria-hidden="true">한</div>
     <div>
       <h1>Teste o Hangul K 🇰🇷</h1>
-      <p class="sub">App grátis para aprender coreano.<br>Faça os 3 passos na ordem:</p>
+      <p class="sub">App grátis para aprender coreano.<br>Só 3 passos fáceis:</p>
     </div>
   </div>
 
-  <div class="tip">🌐 <b>Abra esta página no Chrome</b> (toque em <b>⋯</b> no canto e escolha <b>"Abrir no navegador"</b>) e entre com sua conta Google.</div>
-
   <div class="step" id="s1">
-    <h2><span class="num">1</span>Entre no grupo</h2>
-    <p>Toque no botão, faça login com seu Gmail e toque em <b>"Participar do grupo"</b>.</p>
-    <p style="background:#FFF4E5;border-radius:10px;padding:10px;margin-top:-4px">⚠️ Não aparece o botão "Participar do grupo"? No Chrome, toque em <b>⋮</b> (canto de cima) e marque <b>"Site para computador"</b>. O botão aparece em cima, à direita.</p>
-    <a class="btn" data-next="2" href="https://groups.google.com/g/hangulk-testers" target="_blank" rel="noopener">Entrar no grupo</a>
+    <h2><span class="num">1</span>Mande seu Gmail</h2>
+    <p>Toque no botão. O WhatsApp abre com a mensagem pronta. <b>Escreva seu Gmail</b> no final e envie.</p>
+    <p style="background:#FFF4E5;border-radius:10px;padding:10px;margin-top:-4px">❓ Qual é o seu Gmail? Abra a <b>Play Store</b> e toque na sua <b>foto</b> (canto de cima). O Gmail aparece embaixo do seu nome.</p>
+    <a class="btn" data-next="2" style="background:#1F8F4E" href="https://wa.me/5511999098081?text=Oi%20Juya!%20%F0%9F%98%8A%20Quero%20ser%20testador%20do%20Hangul%20K.%20Meu%20Gmail%20da%20Play%20Store%20%C3%A9%3A%20" target="_blank" rel="noopener">Mandar Gmail no WhatsApp</a>
   </div>
 
   <div class="step" id="s2">
     <h2><span class="num">2</span>Vire testador</h2>
-    <p class="back">👉 Entrou no grupo? Agora toque aqui!</p>
-    <p>Toque no botão e depois em <b>"Tornar-se testador"</b>.</p>
+    <p class="back">👉 A Juya respondeu "Pronto"? Agora toque aqui!</p>
+    <p>Espere a Juya responder <b>"Pronto!"</b> ✅. Depois toque no botão e em <b>"Tornar-se testador"</b>.</p>
     <a class="btn" data-next="3" href="https://play.google.com/apps/testing/com.hangulk.app" target="_blank" rel="noopener">Virar testador</a>
   </div>
 
   <div class="step" id="s3">
     <h2><span class="num">3</span>Baixe o app</h2>
     <p class="back">👉 Já é testador? Agora toque aqui!</p>
-    <p>Toque no botão e depois em <b>"Instalar"</b>.</p>
+    <p>Toque no botão e depois em <b>"Instalar"</b>.<br>Se aparecer "item não encontrado", espere algumas horas e tente de novo.</p>
     <a class="btn" data-next="4" href="https://play.google.com/store/apps/details?id=com.hangulk.app" target="_blank" rel="noopener">Baixar na Play Store</a>
   </div>
 
   <div class="note">
     🙏 <b>Muito importante:</b> não apague o app por <b>14 dias</b>. Assim ele pode ser lançado para todo mundo!<br><br>
-    📱 Use o <b>mesmo Gmail</b> da sua Play Store nos 3 passos.
+    📱 Só funciona em <b>celular Android</b>. Use o <b>mesmo Gmail</b> da sua Play Store.
   </div>
 
   <p class="foot">Obrigada pela ajuda! 💕 – Juya</p>
 </div>
 <script>
 (function(){
-  var k='hk-step',step=1;
+  var k='hk-step2',step=1;
   try{step=parseInt(localStorage.getItem(k)||'1',10)||1}catch(e){}
   function paint(scroll){
     for(var i=1;i<=3;i++){var el=document.getElementById('s'+i);if(!el)continue;
