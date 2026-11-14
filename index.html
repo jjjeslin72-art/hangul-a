@@ -225,6 +225,29 @@ h1{white-space:nowrap}
 .big-num{font-family:var(--f-disp);font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
 
 /* speaking */
+.seg{display:flex;gap:6px;background:var(--line);border-radius:12px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:10px 6px;font-size:15px;font-weight:700;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.dl-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.dl-sc{border:1px solid var(--line);background:var(--sheet);border-radius:14px;padding:14px 10px;text-align:left;display:flex;gap:10px;align-items:center;font-size:14px;line-height:1.25}
+.dl-sc i{font-style:normal;font-size:28px}.dl-sc b{display:block;font-size:15px}.dl-sc small{color:var(--muted)}
+.dl-sc.done{border-color:var(--good);background:var(--good-soft)}
+.dl-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dl-head b{font-size:17px;flex:1}
+.chat{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.bub{max-width:86%;border-radius:16px;padding:10px 12px;font-size:14px;line-height:1.35;border:1px solid var(--line)}
+.bub.a{align-self:flex-start;background:var(--sheet);border-bottom-left-radius:4px}
+.bub.m{align-self:flex-end;background:var(--accent-soft);border-color:var(--accent);border-bottom-right-radius:4px}
+.bub .ko{font-family:var(--f-glyph);font-size:20px;font-weight:700;word-break:keep-all}
+.bub .pr{color:var(--seal);font-weight:700;font-size:13px}.bub .pt{color:var(--muted);font-size:13px}
+.bub button{border:0;background:none;font-size:18px;padding:2px 4px;float:right}
+.dl-turn{background:var(--sheet);border:2px solid var(--seal);border-radius:16px;padding:14px;text-align:center}
+.dl-turn .lbl{font-weight:700;color:var(--seal);margin-bottom:8px}
+.dl-opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.dl-opt .ko{font-family:var(--f-glyph);font-size:20px;font-weight:700}
+.dl-opt .pr{color:var(--seal);font-weight:700;font-size:13px;display:block}.dl-opt .pt{color:var(--muted);font-size:13px;display:block}
+.dl-opt.ok{border-color:var(--good);background:var(--good-soft)}
+.dl-res{font-weight:700;margin-top:8px;min-height:22px}
 .say-target{font-family:var(--f-glyph);font-size:40px;font-weight:700;letter-spacing:2px;text-align:center;line-height:1.3;word-break:keep-all}
 .say-target span{border-radius:6px;padding:0 2px;cursor:pointer}
 .say-target .ok{color:var(--good);background:var(--good-soft)}
@@ -367,6 +390,9 @@ h1{white-space:nowrap}
 <section class="panel" id="p-say" hidden>
   <h2 data-t="sayTitle"></h2>
   <p class="lead" data-t="sayLead"></p>
+  <div class="seg" id="sMode" role="tablist"><button data-m="s" role="tab"></button><button data-m="d" role="tab"></button></div>
+  <div id="sDlg" hidden></div>
+  <div id="sSent">
   <div class="levels" id="sLevels"></div>
   <div class="say-list" id="sList"></div>
   <div class="q-card" id="sCard" style="margin-top:14px">
@@ -384,6 +410,7 @@ h1{white-space:nowrap}
   </div>
   <div class="feedback" id="sFb" hidden aria-live="polite"></div>
   <div class="note" id="sNote" hidden></div>
+  </div>
 </section>
 
 <!-- 6. 노래 -->
@@ -484,7 +511,7 @@ const T={
  qListen:{ko:'소리를 듣고 고르세요',pt:'Ouça e escolha'},qPic:{ko:'그림에 맞는 단어는?',pt:'Qual é a palavra?'},
  again:{ko:'다시 하기',pt:'Jogar de novo'},best:{ko:'최고 기록',pt:'Recorde'},
  end3:{ko:'대단해요! 한글 박사!',pt:'Incrível! Você é fera!'},end2:{ko:'잘했어요! 조금만 더!',pt:'Muito bem! Falta pouco!'},end1:{ko:'괜찮아요, 다시 해봐요!',pt:'Tudo bem, tente de novo!'},
- sayTitle:{ko:'말하고 발음 교정',pt:'Fale e corrija a pronúncia'},
+ sayTitle:{ko:'말하기 · 대화 연습',pt:'Falar e conversar'},
  sayLead:{ko:'단계를 고르고, 먼저 듣고, 마이크를 눌러 따라 말하세요. 90% 넘으면 ✓ 표시가 붙어요.',pt:'Escolha um nível, ouça, toque no microfone e repita. As sílabas erradas ficam em vermelho, com dicas.'},
  speak:{ko:'말하기',pt:'Falar'},stop:{ko:'듣는 중…',pt:'Ouvindo…'},next:{ko:'다음 ▶',pt:'Próxima ▶'},phrases:{ko:'연습할 말 고르기',pt:'Escolha o que praticar'},
  heard:{ko:'들린 말',pt:'Ouvi'},perfect:{ko:'완벽한 발음이에요!',pt:'Pronúncia perfeita!'},good:{ko:'좋아요! 빨간 글자만 다시 연습해요.',pt:'Bom! Pratique só as sílabas vermelhas.'},
@@ -500,7 +527,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});
   $('langBtn').textContent=lang==='ko'?'PT':'한국어';
   $('langBtn').setAttribute('aria-label',lang==='ko'?'Português':'한국어');
-  renderDetail();renderChal();renderSay(false);if(typeof renderMe==='function'){updChip();if(tab==='me')renderMe()}if(typeof renderSongList==='function'&&$('nList'))renderSongList();renderQLevels();if(qState&&qState.i<qState.qs.length&&!$('qPlay').hidden)renderQ();else if(qState)endQuiz();
+  renderDetail();renderChal();renderSay(false);if(window._dlgReady)paintSayMode();if(typeof renderMe==='function'){updChip();if(tab==='me')renderMe()}if(typeof renderSongList==='function'&&$('nList'))renderSongList();renderQLevels();if(qState&&qState.i<qState.qs.length&&!$('qPlay').hidden)renderQ();else if(qState)endQuiz();
 }
 
 /* ---------- 소리 (TTS) ---------- */
@@ -1057,6 +1084,165 @@ $('sMic').onclick=()=>{
   catch(e){showNote('micBlocked')}
 };
 function showNote(k){$('sNote').textContent=t(k);$('sNote').hidden=false}
+
+/* ---------- 5-2. 대화 연습 ---------- */
+const DLG=[
+ {i:'👋',ko:'첫 만남',pt:'Primeiro encontro',t:[
+  ['a','안녕하세요! 처음 뵙겠습니다.','Olá! Muito prazer.'],
+  ['m',[['안녕하세요, 만나서 반가워요.','Olá, prazer em te conhecer.'],['네, 반가워요.','Sim, prazer.']]],
+  ['a','이름이 뭐예요?','Qual é o seu nome?'],
+  ['m',[['제 이름은 {N}예요.','Meu nome é {P}.']]],
+  ['a','어디에서 왔어요?','De onde você é?'],
+  ['m',[['브라질에서 왔어요.','Sou do Brasil.']]],
+  ['a','와, 한국어 잘하시네요!','Uau, você fala coreano bem!'],
+  ['m',[['감사합니다. 열심히 공부하고 있어요.','Obrigado(a). Estou estudando bastante.'],['아니에요, 아직 조금 해요.','Que nada, ainda falo pouco.']]],
+  ['a','다음에 또 만나요!','Até a próxima!'],
+  ['m',[['네, 안녕히 가세요!','Sim, tchau!']]]]},
+ {i:'☕',ko:'카페',pt:'No café',t:[
+  ['a','어서 오세요! 주문하시겠어요?','Bem-vindo! Vai pedir?'],
+  ['m',[['아메리카노 한 잔 주세요.','Um americano, por favor.'],['라테 한 잔 주세요.','Um latte, por favor.']]],
+  ['a','뜨거운 거요, 차가운 거요?','Quente ou gelado?'],
+  ['m',[['차가운 거요.','Gelado.'],['뜨거운 거요.','Quente.']]],
+  ['a','여기서 드세요, 가져가세요?','Para tomar aqui ou para levar?'],
+  ['m',[['여기서 먹을게요.','Vou tomar aqui.'],['가져갈게요.','Vou levar.']]],
+  ['a','오천 원입니다.','São 5 mil wons.'],
+  ['m',[['카드로 할게요.','Vou pagar no cartão.']]],
+  ['a','감사합니다. 맛있게 드세요!','Obrigado. Bom proveito!'],
+  ['m',[['감사합니다!','Obrigado(a)!']]]]},
+ {i:'🍜',ko:'식당',pt:'No restaurante',t:[
+  ['a','몇 분이세요?','Quantas pessoas?'],
+  ['m',[['두 명이요.','Duas pessoas.'],['혼자예요.','Estou sozinho(a).']]],
+  ['a','이쪽으로 앉으세요. 뭐 드릴까요?','Sente aqui. O que vai querer?'],
+  ['m',[['비빔밥 하나 주세요.','Um bibimbap, por favor.'],['불고기 하나 주세요.','Um bulgogi, por favor.']]],
+  ['a','맵게 해 드릴까요?','Quer apimentado?'],
+  ['m',[['조금만 맵게 해 주세요.','Só um pouco apimentado, por favor.'],['안 맵게 해 주세요.','Sem pimenta, por favor.']]],
+  ['a','음식 나왔습니다. 맛있게 드세요.','Aqui está. Bom apetite.'],
+  ['m',[['잘 먹겠습니다!','Obrigado pela comida! (antes de comer)']]],
+  ['a','맛있게 드셨어요?','Gostou da comida?'],
+  ['m',[['네, 정말 맛있어요! 계산해 주세요.','Sim, muito gostoso! A conta, por favor.']]]]},
+ {i:'👗',ko:'옷 가게',pt:'Loja de roupas',t:[
+  ['a','어서 오세요! 뭐 찾으세요?','Bem-vindo! Procura algo?'],
+  ['m',[['원피스 있어요?','Tem vestido?'],['그냥 구경할게요.','Só estou olhando.']]],
+  ['a','네, 이쪽에 있어요. 입어 보시겠어요?','Sim, está aqui. Quer experimentar?'],
+  ['m',[['네, 입어 볼게요.','Sim, vou experimentar.']]],
+  ['a','정말 잘 어울려요!','Ficou ótimo em você!'],
+  ['m',[['이거 얼마예요?','Quanto custa isto?']]],
+  ['a','삼만 원이에요.','São 30 mil wons.'],
+  ['m',[['좀 깎아 주세요.','Me dá um desconto?'],['이걸로 할게요.','Vou levar este.']]],
+  ['a','네, 감사합니다. 또 오세요!','Obrigado. Volte sempre!'],
+  ['m',[['안녕히 계세요!','Tchau! (para quem fica)']]]]},
+ {i:'🚕',ko:'택시',pt:'Táxi',t:[
+  ['a','어디로 가세요?','Para onde vai?'],
+  ['m',[['서울역으로 가 주세요.','Para a Estação de Seul, por favor.'],['명동으로 가 주세요.','Para Myeongdong, por favor.']]],
+  ['a','네, 알겠습니다.','Certo.'],
+  ['m',[['얼마나 걸려요?','Quanto tempo leva?']]],
+  ['a','이십 분쯤 걸려요.','Uns 20 minutos.'],
+  ['m',[['조금 빨리 가 주세요.','Pode ir um pouco mais rápido?'],['천천히 가셔도 돼요.','Pode ir devagar.']]],
+  ['a','다 왔습니다.','Chegamos.'],
+  ['m',[['여기서 세워 주세요. 감사합니다!','Pare aqui, por favor. Obrigado(a)!']]]]},
+ {i:'🗺️',ko:'길 묻기',pt:'Pedindo direção',t:[
+  ['m',[['실례합니다. 화장실이 어디예요?','Com licença. Onde fica o banheiro?'],['실례합니다. 지하철역이 어디예요?','Com licença. Onde fica o metrô?']]],
+  ['a','저쪽으로 쭉 가세요.','Siga reto por ali.'],
+  ['m',[['멀어요?','É longe?']]],
+  ['a','아니요, 가까워요. 오 분이면 돼요.','Não, é perto. Uns 5 minutos.'],
+  ['m',[['정말 감사합니다!','Muito obrigado(a)!']]],
+  ['a','천만에요. 조심히 가세요!','De nada. Vá com cuidado!']]},
+ {i:'📱',ko:'친구와 약속',pt:'Combinando com amigo',t:[
+  ['a','이번 주말에 뭐 해요?','O que vai fazer neste fim de semana?'],
+  ['m',[['아직 계획 없어요.','Ainda não tenho planos.'],['집에서 쉴 거예요.','Vou descansar em casa.']]],
+  ['a','그럼 같이 영화 볼래요?','Então quer ver um filme comigo?'],
+  ['m',[['좋아요! 몇 시에 만날까요?','Legal! Que horas nos encontramos?']]],
+  ['a','토요일 세 시 어때요?','Que tal sábado às três?'],
+  ['m',[['좋아요, 그때 봐요!','Ok, nos vemos então!']]],
+  ['a','늦지 마요!','Não se atrase!'],
+  ['m',[['알겠어요. 걱정 마세요!','Entendi. Não se preocupe!']]]]},
+ {i:'🎂',ko:'생일',pt:'Aniversário',t:[
+  ['a','오늘 제 생일이에요!','Hoje é meu aniversário!'],
+  ['m',[['생일 축하해요!','Feliz aniversário!']]],
+  ['a','고마워요! 파티에 올 수 있어요?','Obrigado(a)! Pode vir à festa?'],
+  ['m',[['물론이죠! 꼭 갈게요.','Claro! Vou com certeza.'],['미안해요, 못 가요.','Desculpe, não posso ir.']]],
+  ['a','선물은 필요 없어요.','Não precisa de presente.'],
+  ['m',[['작은 선물 준비했어요.','Preparei um presentinho.']]],
+  ['a','와, 정말 감동이에요!','Uau, fiquei emocionado(a)!'],
+  ['m',[['행복한 하루 보내세요!','Tenha um dia feliz!']]]]}
+];
+let sMode=store.get('hg-smode','s'),dSc=-1,dStep=0,dLog=[],dRec=null,dListen=false;
+const dDone=new Set(store.get('hg-dlg',[]));
+const dName=()=>{const k=(store.get('hg-name-ko','')||'').split(' ')[0];return{N:k||'마리아',P:(store.get('hg-name','')||'').split(' ')[0]||'Maria'}};
+const dFill=s=>{const n=dName();return s.replace('{N}',n.N).replace('{P}',n.P)};
+const dEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function setSayMode(m){
+  sMode=m;store.set('hg-smode',m);
+  $('sMode').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===m));
+  $('sSent').hidden=m!=='s';$('sDlg').hidden=m!=='d';$('p-say').querySelector(':scope>.lead').hidden=m==='d';
+  if(m==='d')renderDlg();
+}
+function paintSayMode(){const b=$('sMode').querySelectorAll('button');
+  b[0].textContent=L2('🗣 문장 연습','🗣 Frases');b[1].textContent=L2('💬 대화 연습','💬 Conversa');setSayMode(sMode)}
+$('sMode').querySelectorAll('button').forEach(b=>b.onclick=()=>setSayMode(b.dataset.m));
+function bub(who,ko,pt){return`<div class="bub ${who}"><button type="button" data-say="${dEsc(ko)}" aria-label="${L2('듣기','Ouvir')}">🔊</button><div class="ko">${dEsc(ko)}</div><div class="pr">🇧🇷 ${dEsc(pronOf(ko))}</div>${lang==='ko'?'':`<div class="pt">${dEsc(pt)}</div>`}${lang==='ko'?`<div class="pt">${dEsc(pt)}</div>`:''}</div>`}
+function renderDlg(){
+  const box=$('sDlg');
+  if(dSc<0){
+    box.innerHTML=`<p class="lead" style="margin-top:0">${L2('상황을 고르세요. 상대가 먼저 말하면, 내 차례에 마이크를 누르고 대답해요.','Escolha uma situação. A pessoa fala com você e, na sua vez, toque no microfone e responda.')}</p>
+    <div class="dl-grid">${DLG.map((d,i)=>`<button type="button" class="dl-sc${dDone.has(i)?' done':''}" data-i="${i}"><i>${d.i}</i><span><b>${lang==='ko'?d.ko:d.pt}${dDone.has(i)?' ✅':''}</b><small>${lang==='ko'?d.pt:d.ko}</small></span></button>`).join('')}</div>`;
+    box.querySelectorAll('.dl-sc').forEach(b=>b.onclick=()=>startDlg(+b.dataset.i));return;
+  }
+  const d=DLG[dSc],turn=d.t[dStep];
+  let h=`<div class="dl-head"><button class="btn" id="dBack" type="button">← ${L2('목록','Voltar')}</button><b>${d.i} ${lang==='ko'?d.ko:d.pt}</b><span class="msg">${Math.min(dStep,d.t.length)} / ${d.t.length}</span></div><div class="chat">`;
+  dLog.forEach(x=>h+=bub(x[0],x[1],x[2]));h+='</div>';
+  if(!turn){
+    h+=`<div class="dl-turn"><div style="font-size:40px">🎉</div><b>${L2('대화 완료! 잘했어요!','Conversa completa! Muito bem!')}</b>
+      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn big" id="dAgain" type="button">${L2('다시 하기','De novo')}</button><button class="btn primary big" id="dNext" type="button">${L2('다음 대화','Próxima')}</button></div></div>`;
+  }else{
+    const opts=turn[1].map(o=>[dFill(o[0]),dFill(o[1])]);
+    h+=`<div class="dl-turn"><div class="lbl">🎤 ${L2('내 차례! 하나 골라 말해 보세요','Sua vez! Escolha uma e fale')}</div>
+      ${opts.map((o,k)=>`<button type="button" class="dl-opt" data-k="${k}"><span class="ko">${dEsc(o[0])}</span><span class="pr">🇧🇷 ${dEsc(pronOf(o[0]))}</span><span class="pt">${dEsc(o[1])}</span></button>`).join('')}
+      <div class="msg" style="margin-bottom:8px">${L2('👆 문장을 누르면 소리를 들을 수 있어요','👆 Toque na frase para ouvir')}</div>
+      <button class="mic${dListen?' on':''}" id="dMic" type="button">${dListen?t('stop'):t('speak')}</button>
+      <div class="dl-res" id="dRes" aria-live="polite"></div>
+      <button class="btn" id="dSkip" type="button" style="margin-top:6px">${L2('건너뛰기 ⏭','Pular ⏭')}</button></div>`;
+  }
+  box.innerHTML=h;
+  box.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(b.dataset.say));
+  $('dBack').onclick=()=>{stopDlgRec();dSc=-1;renderDlg()};
+  if(!turn){$('dAgain').onclick=()=>startDlg(dSc);$('dNext').onclick=()=>startDlg((dSc+1)%DLG.length);return}
+  const opts=turn[1].map(o=>[dFill(o[0]),dFill(o[1])]);
+  box.querySelectorAll('.dl-opt').forEach(b=>b.onclick=()=>speak(opts[+b.dataset.k][0]));
+  $('dSkip').onclick=()=>{stopDlgRec();dMine(opts[0])};
+  $('dMic').onclick=()=>dlgListen(opts);
+  const last=box.querySelector('.chat .bub:last-child');(last||box).scrollIntoView({behavior:'smooth',block:'center'});
+}
+function startDlg(i){stopDlgRec();dSc=i;dStep=0;dLog=[];dAdvance()}
+function dAdvance(){ // 상대 대사는 자동으로 추가하고 읽어 줌
+  const d=DLG[dSc];
+  if(d.t[dStep]&&d.t[dStep][0]==='a'){const a=d.t[dStep];dLog.push(['a',a[1],a[2]]);dStep++;renderDlg();speak(a[1]);return}
+  if(!d.t[dStep]&&!dDone.has(dSc)){dDone.add(dSc);store.set('hg-dlg',[...dDone])}
+  renderDlg();
+}
+function dMine(o){dLog.push(['m',o[0],o[1]]);dStep++;dAdvance()}
+function stopDlgRec(){if(dRec){try{dRec.abort()}catch(e){}}dRec=null;dListen=false}
+function dlgListen(opts){
+  if(dListen){try{dRec.stop()}catch(e){}return}
+  if(!SR){$('dRes').textContent=t('noSR');return}
+  speechSynthesis&&speechSynthesis.cancel();
+  const r=new SR();dRec=r;r.lang='ko-KR';r.interimResults=true;r.maxAlternatives=5;r.continuous=false;
+  let alts=null;
+  r.onresult=e=>{const x=e.results[e.results.length-1];$('dRes').textContent='“'+x[0].transcript+'”';if(x.isFinal)alts=[...x].map(a=>a.transcript)};
+  r.onerror=e=>{if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error))$('dRes').textContent=t('micBlocked');else if(e.error==='no-speech')$('dRes').textContent=t('noSpeech')};
+  r.onend=()=>{dListen=false;const m=$('dMic');if(m){m.classList.remove('on');m.textContent=t('speak')}
+    if(!alts||dSc<0)return;
+    let best={score:-1,k:0,txt:''};
+    opts.forEach((o,k)=>alts.forEach(a=>{const sc=align(o[0],clean(a)).score;if(sc>best.score)best={score:sc,k,txt:a}}));
+    const pct=Math.round(best.score*100),btn=$('sDlg').querySelectorAll('.dl-opt')[best.k];
+    if(pct>=60){if(btn)btn.classList.add('ok');$('dRes').innerHTML=`<span style="color:var(--good)">${pct}% · ${t(pct===100?'perfect':'good')}</span>`;
+      setTimeout(()=>{if(dSc>=0)dMine(opts[best.k])},1100)}
+    else $('dRes').innerHTML=`<span style="color:var(--bad)">${pct}% · ${L2('다시 한번 말해 봐요!','Tente de novo!')}</span><br><small>${t('heard')}: “${dEsc(best.txt)}”</small>`;
+  };
+  try{r.start();dListen=true;const m=$('dMic');m.classList.add('on');m.textContent=t('stop');$('dRes').textContent=''}
+  catch(e){$('dRes').textContent=t('micBlocked')}
+}
+window._dlgReady=true;paintSayMode();
 
 /* ---------- 6. 노래방 ---------- */
 // 한글 → 브라질식 발음 자동 변환 (연음·비음화·구개음화 기본 규칙)
