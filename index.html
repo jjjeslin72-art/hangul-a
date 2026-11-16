@@ -426,6 +426,7 @@ h1{white-space:nowrap}
       <label class="fl"><span data-t="fLyrics"></span><textarea id="fLyrics" rows="8" required placeholder="안녕하세요 반가워요 | Olá, prazer
 고마워요 | Obrigado"></textarea></label>
       <p class="msg" style="text-align:left" data-t="fHint"></p>
+      <p class="msg" style="text-align:left;color:var(--seal)" data-t="fLegal"></p>
       <div class="row"><button class="btn primary" type="submit" data-t="save"></button><button class="btn" type="button" id="fCancel" data-t="cancel"></button></div>
     </form>
   </div>
@@ -490,6 +491,9 @@ const T={
  noAudioMine:{ko:'노래 파일이 없어요. 🎵 Suno 파일 넣기로 mp3를 넣으세요.',pt:'Sem áudio. Adicione o mp3 do Suno.'},
  tapNext:{ko:'이 줄 시작할 때 누르기',pt:'Toque quando esta linha começar'},tapDone:{ko:'박자 맞추기 완료! 이제 노래에 맞춰 가사가 따라가요.',pt:'Pronto! A letra agora acompanha a música.'},
  needAudio:{ko:'먼저 노래 파일을 넣어 주세요.',pt:'Adicione o arquivo de áudio primeiro.'},
+ fLegal:{ko:'⚠️ 내가 만든 노래만 넣어 주세요. 다른 가수의 노래나 가사는 저작권 때문에 넣으면 안 돼요. 이 노래는 내 폰에만 저장돼요.',pt:'⚠️ Adicione só músicas criadas por você. Músicas e letras de outros artistas têm direitos autorais. A música fica salva só no seu celular.'},
+ kpopNote:{ko:'ℹ️ 노래 제목과 가수 이름은 공부를 돕기 위해서만 보여 줘요. Hangul K는 가수·소속사·방송사와 관련이 없어요. 영상은 유튜브 공식 채널에서 보세요.',pt:'ℹ️ Títulos e nomes de artistas aparecem só para ajudar nos estudos. O Hangul K não tem ligação com artistas, gravadoras ou emissoras. Assista aos vídeos nos canais oficiais do YouTube.'},
+ aboutLegal:{ko:'Hangul K는 무료 공부 앱이에요. 가수·소속사·방송사·Suno와 관련이 없어요. 모든 기록은 내 폰에만 저장돼요.',pt:'O Hangul K é um app gratuito de estudo. Não tem ligação com artistas, gravadoras, emissoras ou com o Suno. Seu progresso fica salvo só no seu celular.'},
  sunoStyle:{ko:'Suno에 넣을 스타일',pt:'Estilo para o Suno'},sunoLyrics:{ko:'Suno에 넣을 가사',pt:'Letra para o Suno'},copy:{ko:'복사',pt:'Copiar'},copied:{ko:'복사했어요',pt:'Copiado'},
  builtIn:{ko:'Claude가 쓴 한글 공부 노래',pt:'Canção de estudo escrita pelo Claude'},mine:{ko:'내 노래',pt:'Minha música'},
  soundTitle:{ko:'자음과 모음 소리',pt:'Sons das consoantes e vogais'},
@@ -1026,7 +1030,7 @@ function renderSayList(){
   $('sLevels').innerHTML=LEVELS.map((L,i)=>{const n=L.filter(x=>said.has(x[0])).length;
     return lvBtn(i,i===sLv,n?n+'/'+L.length:'')}).join('');
   $('sLevels').querySelectorAll('.lv').forEach(b=>b.onclick=()=>{if(lvLocked(+b.dataset.lv))return lockedMsg();sLv=+b.dataset.lv;sIdx=0;store.set('hg-slv',sLv);renderSay();speak(SAYI()[0][0])});
-  $('sList').innerHTML=(SONGS.some(x=>x[5]===sLv)?`<div class="g-head">${lang==='ko'?'🎬 뮤직비디오 보기':'🎬 Assistir ao clipe'}</div><div class="songs">`+SONGS.filter(x=>x[5]===sLv).map(x=>`<a class="song" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(x[0]+' '+x[1]+' '+x[2]+' official MV')}"><span class="artist">${x[0]}</span><b>${x[1]}</b><small class="pron">${x[4]}</small><small>${x[3]}</small></a>`).join('')+'</div>':'')+`<div class="g-head">${sLv>=10&&sLv<=13?lvName(sLv)+' · '+(sLv>=12?(lang==='ko'?'드라마에 자주 나오는 말':'Frases comuns nos doramas'):(lang==='ko'?'노래 속 단어':'Palavras das músicas')):lvTitle(sLv)+(sLv<10?' · '+lvName(sLv):'')}</div>`;
+  $('sList').innerHTML=(SONGS.some(x=>x[5]===sLv)?`<div class="g-head">${lang==='ko'?'🎬 뮤직비디오 보기':'🎬 Assistir ao clipe'}</div><div class="songs">`+SONGS.filter(x=>x[5]===sLv).map(x=>`<a class="song" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(x[0]+' '+x[1]+' '+x[2]+' official MV')}"><span class="artist">${x[0]}</span><b>${x[1]}</b><small class="pron">${x[4]}</small><small>${x[3]}</small></a>`).join('')+'</div>':'')+(sLv>=10&&sLv<=13?`<p class="msg" style="text-align:left;margin:6px 0 0">${t('kpopNote')}</p>`:'')+`<div class="g-head">${sLv>=10&&sLv<=13?lvName(sLv)+' · '+(sLv>=12?(lang==='ko'?'드라마에 자주 나오는 말':'Frases comuns nos doramas'):(lang==='ko'?'노래 속 단어':'Palavras das músicas')):lvTitle(sLv)+(sLv<10?' · '+lvName(sLv):'')}</div>`;
   const box=document.createElement('div');box.className='g-items';
   SAYI().forEach((x,idx)=>{const b=document.createElement('button');if(said.has(x[0]))b.classList.add('done');
     b.innerHTML=`<b>${x[0]}</b><small class="pron">${x[3]}</small><small>${x[1]}</small>`;b.setAttribute('aria-current',idx===sIdx);
@@ -1565,7 +1569,9 @@ function renderMe(){
     <button class="btn big wide" id="fbSend">✉️ ${L2('이메일로 보내기','Enviar por e-mail')}</button>
     <p class="msg" style="text-align:left;margin-top:8px">${L2('이메일 앱이 안 열리면 이 주소로 보내 주세요:','Se o e-mail não abrir, envie para:')} <b style="user-select:all">${FEEDBACK_EMAIL}</b> <button type="button" class="btn" id="fbCopy" style="padding:4px 10px;font-size:13px">📋</button></p>
   </div>
-  <button class="btn wide" id="onbAgain" style="margin-bottom:18px">📖 ${L2('사용 안내 다시 보기','Ver o tutorial de novo')}</button>`;
+  <button class="btn wide" id="onbAgain" style="margin-bottom:10px">📖 ${L2('사용 안내 다시 보기','Ver o tutorial de novo')}</button>
+  <p class="msg" style="margin:0 0 6px">${t('aboutLegal')}</p>
+  <p class="msg" style="margin:0 0 18px"><a href="https://jjjeslin72-art.github.io/hangul-a/privacy.html" target="_blank" rel="noopener">${L2('개인정보처리방침','Política de privacidade')}</a></p>`;
   $('shSkill').onclick=()=>openShare('skill');
   $('shApp').onclick=()=>openShare('app');
   let fbT='bug';
